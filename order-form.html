@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Order - Wall Art Planner</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .order-form {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .order-form .input-row {
+            margin-bottom: 20px;
+        }
+        .order-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .order-form input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .order-summary {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+        .order-form .btn-primary {
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Beta Warning -->
+    <div style="background-color: #ffeb3b; color: #333; padding: 8px; text-align: center; font-size: 14px; font-weight: bold; width: 100%;">
+        This Wall art collection tool is a beta product, please cross-verify any results with BPro staff prior to placing a real order.
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="index.html" class="nav-link">Wall Art Planner</a>
+        <a href="frame-calculator.html" class="nav-link">Frame Size Calculator</a>
+        <a href="print-calculator.html" class="nav-link">Print Size Calculator</a>
+    </nav>
+
+    <div class="container">
+        <div class="order-form">
+            <h2>Place Your Order</h2>
+            <form id="orderForm">
+                <div class="input-row">
+                    <label for="name">Name *</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="input-row">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="input-row">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                <div class="input-row">
+                    <label for="fileLink">File Transfer Link *</label>
+                    <input type="url" id="fileLink" required placeholder="https://...">
+                </div>
+                <div class="order-summary" id="orderSummary">
+                    <!-- Order summary will be populated via JavaScript -->
+                </div>
+                <button type="submit" class="btn-primary">Order Now</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get order summary from localStorage
+            const orderSummary = localStorage.getItem('orderSummary');
+            if (orderSummary) {
+                document.getElementById('orderSummary').innerHTML = orderSummary;
+            }
+
+            document.getElementById('orderForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const fileLink = document.getElementById('fileLink').value;
+
+                // Create email body with order details
+                const orderDetails = document.getElementById('orderSummary').innerText;
+                const emailBody = `
+New Order Details:
+
+Customer Information:
+-------------------
+Name: ${name}
+Email: ${email}
+Phone: ${phone}
+File Transfer Link: ${fileLink}
+
+Order Summary:
+-------------
+${orderDetails}
+                `.trim();
+
+                // Create mailto link with order details
+                const mailtoLink = `mailto:sales@bpro.com.au?subject=New Wall Art Order - ${name}&body=${encodeURIComponent(emailBody)}`;
+                
+                // Open default email client
+                window.location.href = mailtoLink;
+
+                // Clear stored data and redirect after a short delay
+                setTimeout(() => {
+                    localStorage.removeItem('orderSummary');
+                    window.location.href = 'index.html';
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

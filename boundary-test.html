@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wall Art Planner - Boundary Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1em;
+            text-align: center;
+        }
+
+        .test-info {
+            margin: 15px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-instruction {
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        .test-instruction ol {
+            padding-left: 20px;
+        }
+        .test-instruction li {
+            margin-bottom: 5px;
+        }
+
+        main {
+            display: flex;
+            flex-grow: 1;
+            padding: 10px;
+            gap: 10px; /* Add gap between main sections */
+        }
+
+        #wall-section {
+            flex-grow: 3; /* Wall takes more space */
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .wall-options {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px; /* Spacing between wall option inputs */
+            align-items: center;
+        }
+        .wall-options label {
+            font-weight: bold;
+        }
+        .wall-options input[type="number"] {
+            width: 70px; /* Adjust width as needed */
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .wall-options button {
+            padding: 8px 12px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .wall-options button:hover {
+            background-color: #4cae4c;
+        }
+
+
+        #controls-section {
+            flex-grow: 1; /* Controls take less space */
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Spacing between control groups */
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .frame-options, .collections-container, .action-buttons {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .frame-options h3, .collections-container h3 {
+            margin-top: 0;
+            font-size: 1.1em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        .frame-options label {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.9em;
+        }
+        .frame-options input[type="number"], 
+        .frame-options select {
+            width: calc(100% - 12px); /* Full width minus padding */
+            padding: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        .frame-options button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .frame-options button:hover {
+            background-color: #0056b3;
+        }
+
+        .action-buttons button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 8px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .action-buttons button:hover {
+            background-color: #5a6268;
+        }
+        .action-buttons button#clearAll {
+            background-color: #dc3545;
+        }
+        .action-buttons button#clearAll:hover {
+            background-color: #c82333;
+        }
+
+
+        /* Ensure wall canvas is visible and scrollable if content overflows */
+        .wall-container {
+            flex-grow: 1;
+            overflow: auto; /* Important for scrollability */
+            background-color: #e9e9e9; /* Light grey background for the container */
+            border: 1px solid #ccc;
+            position: relative; /* For absolute positioning of wall-canvas */
+        }
+
+        .wall-canvas {
+            background-color: #f8f8f8; /* Slightly lighter for the canvas itself */
+            position: relative; /* For positioning frames */
+            /* Dimensions set by JS */
+        }
+        
+        /* Modal styles from original styles.css, slightly adapted */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 10000; /* High z-index */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.6);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .modal-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .modal-close:hover,
+        .modal-close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .frame-details-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .frame-details-table td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .frame-details-table tr:last-child td {
+            border-bottom: none;
+        }
+        .frame-details-table td:first-child {
+            font-weight: bold;
+            width: 40%;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Wall Art Planner - Boundary Testing</h1>
+    </header>
+
+    <div class="test-info">
+        <h2>Boundary Calculation Test</h2>
+        <div class="test-instruction">
+            <p>This page allows you to test the boundary calculation logic for frames and collections.</p>
+            <ol>
+                <li>Click the "Create Test Frames" button in the control panel (top-right of the screen).</li>
+                <li>Enable "Show Frame Boundaries" to visualize calculated vs. rendered boundaries. Check for red (mismatch) vs. green (match) labels.</li>
+                <li>Enable "Show Component Boundaries" to see individual frame components (print, mat, frame itself) outlined.</li>
+                <li>Use "Measurement Mode" to manually measure distances. Click to start, move mouse, click again to end (or drag).</li>
+            </ol>
+        </div>
+    </div>
+
+    <main>
+        <div id="wall-section">
+            <div class="wall-options">
+                <label for="wallWidth">Wall Width (in):</label>
+                <input type="number" id="wallWidth" min="12" max="600" value="120">
+                
+                <label for="wallHeight">Wall Height (in):</label>
+                <input type="number" id="wallHeight" min="12" max="600" value="96">
+                
+                <!-- Simplified controls for test page, main app has more -->
+            </div>
+
+            <div class="wall-container">
+                <div id="wallCanvas" class="wall-canvas">
+                    <!-- Frames will be added here by JS -->
+                     <div class="wall-dimension-display wall-width-display"></div>
+                     <div class="wall-dimension-display wall-height-display"></div>
+                     <img id="wallBackgroundImage" src="#" alt="Wall Background" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1;">
+                </div>
+            </div>
+        </div>
+
+        <div id="controls-section">
+            <div class="frame-options">
+                <h3>Create New Collection</h3>
+                
+                <label for="printWidth">Print Width (in):</label>
+                <input type="number" id="printWidth" min="1" max="60" value="8" step="0.25">
+                
+                <label for="printHeight">Print Height (in):</label>
+                <input type="number" id="printHeight" min="1" max="60" value="10" step="0.25">
+                
+                <label for="mattWidth">Mat Width (cm):</label>
+                <input type="number" id="mattWidth" min="0" max="15" value="5" step="0.1">
+                
+                <label for="frameWidth">Frame Type (mm):</label>
+                 <select id="frameWidth">
+                    <option value="20">20mm</option>
+                    <option value="30">30mm</option>
+                    <option value="40">40mm</option>
+                </select>
+                
+                <label for="frameCount">Number of Frames:</label>
+                <input type="number" id="frameCount" min="1" max="20" value="1">
+
+                <label for="frameMaterial">Frame Material:</label>
+                <select id="frameMaterial">
+                    <option value="black" selected>Black</option>
+                    <option value="white">White</option>
+                    <option value="oak">Oak</option>
+                    <option value="walnut">Walnut</option>
+                </select>
+                
+                <button id="addCollection">Add Collection</button>
+            </div>
+            
+            <div class="collections-container">
+                <h3>Collections Legend</h3>
+                <div id="collectionsLegend"></div>
+            </div>
+            
+            <div class="action-buttons">
+                 <label for="gridSize">Grid Snap (inches):</label>
+                <select id="gridSize">
+                    <option value="0">Off</option>
+                    <option value="0.25">0.25"</option>
+                    <option value="0.5" selected>0.5"</option>
+                    <option value="1">1"</option>
+                </select>
+
+                <label for="frameSpacing">Min Frame Spacing (inches):</label>
+                <select id="frameSpacing">
+                    <option value="0.5">0.5"</option>
+                    <option value="1" selected>1"</option>
+                    <option value="2">2"</option>
+                    <option value="3">3"</option>
+                    <option value="4">4"</option>
+                </select>
+                <button id="deleteAllFramesBtn">Delete All Frames</button>
+                <!-- Simplified controls for test page -->
+            </div>
+        </div>
+    </main>
+
+    <div id="frameInfoModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Frame Details</h2>
+            <table class="frame-details-table">
+                <tr><td>Print Size:</td><td class="print-size"></td></tr>
+                <tr><td>Mat Width:</td><td class="matt-width"></td></tr>
+                <tr><td>Frame Width:</td><td class="frame-width"></td></tr>
+                <tr><td>Total Size:</td><td class="total-size"></td></tr>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Ensure main.js is loaded as a module -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,1062 @@
+/* Navigation styles */
+.nav-bar {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.nav-link {
+    color: #495057;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+    background-color: #e9ecef;
+}
+
+.nav-link.active {
+    color: #007bff;
+    font-weight: bold;
+}
+
+/* Container layout */
+.container {
+    max-width: 1600px; /* Increased from 1400px to accommodate larger wall canvas */
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    gap: 30px;
+}
+
+.wall-section {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.wall-dimensions-display {
+    position: absolute;
+    top: -30px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+}
+
+.wall-canvas {
+    width: 100%;
+    height: 900px; /* Increased from 600px (50% larger) */
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+#wallBackgroundImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Or contain, depending on desired behavior */
+    z-index: 0; /* Behind frames */
+    display: none; /* Initially hidden */
+    pointer-events: none; /* Allow clicks to pass through to frames */
+}
+
+/* Wall controls */
+.wall-controls {
+    margin-top: 10px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.hide-icons-control, .hide-all-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #495057;
+    cursor: pointer;
+    margin-right: 16px;
+}
+
+.hide-icons-control input[type="checkbox"],
+.hide-all-control input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.wall-controls {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Hide frame controls and buttons when hide-icons is checked */
+.wall-canvas.hide-icons .frame-controls,
+.wall-canvas.hide-icons .delete-btn,
+.wall-canvas.hide-icons .frame-info-btn {
+    display: none;
+}
+
+/* Hide all visual elements when hide-all is checked */
+.wall-canvas.hide-all .frame-controls,
+.wall-canvas.hide-all .delete-btn,
+.wall-canvas.hide-all .frame-info-btn,
+.wall-canvas.hide-all .frame-dimensions,
+.wall-canvas.hide-all .distance-indicators,
+.wall-canvas.hide-all .spacing-indicator,
+.wall-canvas.hide-all .boundary-marquee {
+    display: none !important;
+}
+
+/* Hide move indicator when icons are hidden */
+.wall-canvas.hide-all .frame::before {
+    display: none;
+}
+
+.controls-section {
+    width: 420px; /* Increased from 400px to provide more space for input fields */
+    flex-shrink: 0;
+}
+
+.help-text {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 4px;
+}
+
+/* Frame styles */
+.frame {
+    display: inline-block; /* EXPERIMENTAL: To see if it affects initial stacking */
+    position: absolute;
+    cursor: move;
+    max-width: 100%;
+    max-height: 100%;
+    touch-action: none;
+    will-change: transform;
+    box-sizing: border-box;
+    outline: 2px solid transparent; /* For collision highlight transition */
+    transition: box-shadow 0.2s ease, transform 0.05s ease, outline 0.2s ease; /* Added outline to transition */
+    /* position: relative; */ /* Removed as position:absolute is already set and transform is used for positioning */
+    z-index: 1; /* Above background image */
+}
+
+/* Style for frames involved in a collision where movement is blocked */
+.frame.frame-collision-blocked {
+    outline: 2px solid red !important; /* Use important to override hover/other outlines if necessary */
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.7); /* Optional: add a red glow */
+    z-index: 1001; /* Ensure it's above other frames, including dragging ones */
+}
+
+.frame:hover {
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.5);
+    z-index: 10;
+}
+
+.frame-dimensions {
+    position: absolute;
+    top: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #666;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2px 8px;
+    border-radius: 4px;
+    z-index: 5;
+    white-space: nowrap;
+}
+
+.frame-controls {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 6px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.delete-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.2s;
+}
+
+.delete-btn:hover {
+    background-color: #ff6666;
+}
+
+.frame-info-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.2s;
+}
+
+.frame-info-btn:hover {
+    background-color: #42a5f5;
+}
+
+.photo-upload-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.2s;
+}
+
+.photo-upload-btn:hover {
+    background-color: #66BB6A;
+}
+
+.move-icon {
+    display: none;
+}
+
+/* Image crop modal styles */
+.image-crop-modal .modal-content {
+    max-width: 90%;
+    max-height: 90%;
+    padding: 20px;
+}
+
+.image-crop-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center items horizontally */
+    gap: 15px;
+}
+
+.crop-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.crop-controls label {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.crop-controls input[type="range"] {
+    flex-grow: 1;
+    max-width: 300px;
+}
+
+.zoom-value {
+    min-width: 50px;
+    text-align: right;
+}
+
+/* Crop container - Use flex centering */
+.crop-container {
+    position: relative;
+    overflow: hidden; /* Keep overflow hidden */
+    /* margin: 0 auto; */ /* Remove margin auto */
+    border: 2px solid #ddd;
+    background-color: #f5f5f5;
+    display: flex; /* Use flex */
+    justify-content: center; /* Use flex */
+    align-items: center; /* Use flex */
+}
+
+/* Crop wrapper - Relative position, border applied */
+.crop-wrapper {
+    position: relative;
+    /* display: block; */ /* Let flex handle display */
+    border: 2px dashed rgba(255, 255, 255, 0.8); /* Apply border here */
+    box-sizing: border-box;
+    /* margin: 0 auto; */ /* Remove margin auto */
+    /* Size determined by JS */
+}
+
+.crop-canvas {
+    display: block; /* Ensure canvas is block */
+    cursor: move;
+    /* border: 2px dashed rgba(255, 255, 255, 0.8); */ /* Border moved to wrapper */
+    box-sizing: border-box;
+    width: 100%; /* Make canvas fill wrapper */
+    height: 100%; /* Make canvas fill wrapper */
+}
+
+/* Removed .crop-boundary, .scissors-icon, .dashed-line, .crop-boundary::after rules */
+
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Frame layers */
+.frame-layers {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.frame-outer,
+.frame-matt,
+.frame-print {
+    position: absolute;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+}
+
+.frame-outer {
+    inset: 0;
+    background-color: #333;
+}
+
+.frame-matt {
+    background-color: #fff;
+}
+
+.frame-print {
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+}
+
+/* Spacing indicator styles */
+.spacing-indicator {
+    position: absolute;
+    border: 2px dashed rgba(33, 150, 243, 0.6);
+    pointer-events: none;
+    z-index: 5;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    display: none;
+    border-radius: 4px;
+}
+
+.spacing-value {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(33, 150, 243, 0.8);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    margin: 0;
+}
+
+/* Distance indicators */
+.distance-indicators > div {
+    position: absolute;
+    font-size: 12px;
+    color: #666;
+    pointer-events: none;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2px 4px;
+    border-radius: 2px;
+    z-index: 5;
+}
+
+.distance-left { left: -30px; top: 50%; transform: translateY(-50%); }
+.distance-right { right: -30px; top: 50%; transform: translateY(-50%); }
+.distance-top { top: -25px; left: 50%; transform: translateX(-50%); }
+.distance-bottom { bottom: -25px; left: 50%; transform: translateX(-50%); }
+
+/* Boundary marquee styles */
+.boundary-marquee {
+    position: absolute;
+    border: 2px dashed #2196F3;
+    pointer-events: none;
+    z-index: 5;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.boundary-dimension {
+    position: absolute;
+    top: -45px; /* Changed from -25px to -45px to prevent overlap */
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2196F3;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    margin: 0;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #666;
+}
+
+.modal-title {
+    margin-top: 0;
+    color: #333;
+}
+
+.modal-detail {
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.modal-label {
+    font-weight: bold;
+    color: #666;
+}
+
+.modal-value {
+    color: #333;
+}
+
+/* Collection styles */
+.collection-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #f5f5f5;
+    border-radius: 4px;
+}
+
+.collection-info {
+    font-size: 14px;
+    color: #333;
+}
+
+/* Input styles */
+.input-row {
+    margin-bottom: 1rem;
+}
+
+.input-row label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.input-row input[type="number"],
+.input-row select {
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    box-sizing: border-box; /* Ensure padding is included in width calculation */
+}
+
+.input-row input[type="number"]:focus,
+.input-row select:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Button styles */
+.btn-primary, .btn-secondary {
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    user-select: none;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+    cursor: pointer;
+    margin: 0.25rem 0;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #007bff;
+    border: 1px solid #0056b3;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+.btn-secondary {
+    color: #fff;
+    background-color: #6c757d;
+    border: 1px solid #545b62;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+.btn-secondary:not(:disabled) {
+    cursor: pointer;
+}
+
+.btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border: 1px solid #bd2130;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* Section styles */
+section {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 0.25rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-sizing: border-box; /* Ensure padding is included in width calculation */
+    overflow: hidden; /* Prevent content from overflowing */
+}
+
+section h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #343a40;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+section h2::after {
+    content: '▼';
+    font-size: 0.8em;
+    transition: transform 0.3s ease;
+}
+
+section.collapsed h2::after {
+    transform: rotate(-90deg);
+}
+
+section .section-content {
+    transition: max-height 0.3s ease-out;
+    overflow: hidden;
+    max-height: 2000px;
+}
+
+section.collapsed .section-content {
+    max-height: 0;
+}
+
+/* Utility classes */
+.hidden {
+    display: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .controls-section {
+        width: 100%;
+    }
+
+    .wall-section {
+        margin-bottom: 2rem;
+        min-height: 50vh; /* Ensure wall section takes up reasonable space */
+    }
+
+    .wall-canvas {
+        height: 500px; /* Reduce height for smaller screens */
+    }
+
+    .controls-section {
+        width: 100%;
+    }
+
+    /* Adjust padding and font sizes */
+    .container {
+        padding: 10px;
+        gap: 15px;
+    }
+
+    body {
+        font-size: 14px; /* Slightly smaller base font size */
+    }
+
+    section h2 {
+        font-size: 1.3rem;
+    }
+
+    .input-row input[type="number"],
+    .input-row select,
+    .btn-primary, .btn-secondary {
+        font-size: 0.9rem;
+        padding: 0.3rem 0.6rem;
+    }
+
+    /* Frame adjustments */
+    .frame-dimensions {
+        font-size: 10px;
+        padding: 1px 4px;
+        top: -18px;
+    }
+
+    .frame-controls {
+        /* Stack controls vertically if needed, or adjust gap */
+        gap: 5px;
+        padding: 4px;
+    }
+
+    .delete-btn,
+    .frame-info-btn,
+    .photo-upload-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 14px;
+    }
+
+    /* Modal adjustments */
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .modal-title {
+        font-size: 1.2rem;
+    }
+
+    /* Calculator adjustments */
+    .calculator-container {
+        max-width: 100%;
+        padding: 15px;
+    }
+
+    .frame-preview {
+        width: 90%; /* Make preview relative */
+        height: auto;
+        aspect-ratio: 1 / 1; /* Maintain square aspect ratio */
+        max-width: 400px; /* Limit max size */
+        max-height: 400px;
+    }
+
+    .frame-mat {
+        inset: 5%; /* Use percentage for responsiveness */
+    }
+
+    .frame-print {
+        inset: 10%; /* Use percentage for responsiveness */
+    }
+
+    .frame-options {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* Price Summary adjustments */
+    .price-summary {
+        padding-right: 5px;
+    }
+
+    .frame-price {
+        padding: 0.8rem;
+    }
+
+    .grand-total {
+        font-size: 1.1em;
+    }
+
+    /* Navigation adjustments */
+    .nav-bar {
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .nav-link {
+        padding: 0.4rem 0.8rem;
+        margin-right: 0.5rem;
+    }
+}
+
+/* Frame preview styles */
+.frame-preview {
+    border: 1px solid #ddd;
+    margin: 20px auto;
+    position: relative;
+    width: 600px; /* Increased from 400px (50% larger) */
+    height: 600px; /* Increased from 400px (50% larger) */
+}
+
+.frame-outer {
+    position: absolute;
+    background: #333;
+    inset: 0;
+}
+
+.frame-mat {
+    position: absolute;
+    background: #fff;
+    inset: 30px; /* Increased from 20px (50% larger) */
+}
+
+.frame-print {
+    position: absolute;
+    background: #f0f0f0;
+    inset: 60px; /* Increased from 40px (50% larger) */
+}
+
+/* Calculator specific styles */
+.calculator-container {
+    max-width: 900px; /* Increased from 600px (50% larger) */
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.unit-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.frame-options {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.frame-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.preview-container {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.dimensions-summary {
+    margin-top: 20px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.add-to-planner {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-size: 16px;
+}
+
+.add-to-planner:hover {
+    background: #45a049;
+}
+
+/* Suggestion result styles */
+.suggestion-result {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    border: 1px solid #dee2e6;
+}
+
+.suggestion-result.hidden {
+    display: none !important;
+}
+
+.suggestion-info {
+    margin-bottom: 1rem;
+    color: #666;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.suggestion-details {
+    margin: 1rem 0;
+}
+
+.suggestion-note {
+    margin-top: 1rem;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.custom-ratio.hidden {
+    display: none;
+}
+
+/* Detail row styles */
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+}
+
+.detail-row span:first-child {
+    font-weight: bold;
+    color: #495057;
+}
+
+/* Dragging styles */
+.frame.dragging {
+    opacity: 0.9;
+    z-index: 1000;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.7), 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: scale(1.02);
+}
+
+/* Add a visual indicator for frames that can be moved */
+.frame:not(.dragging)::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333' opacity='0.5'%3E%3Cpath d='M10,9h4V6h3l-5-5L7,6h3V9z M9,14h6v-2h2v6H7v-6h2V14z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.frame:hover:not(.dragging)::before {
+    opacity: 0.7;
+}
+
+/* Hide move indicator when icons are hidden */
+.wall-canvas.hide-icons .frame::before {
+    display: none;
+}
+
+/* Price Summary Styles */
+.price-summary {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.collection-price {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.collection-price:last-child {
+    border-bottom: none;
+}
+
+.collection-price h3 {
+    color: #343a40;
+    margin-bottom: 1rem;
+}
+
+.frames-list {
+    margin-left: 1rem;
+}
+
+.frame-price {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+}
+
+.frame-details {
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.price-breakdown {
+    margin-left: 1rem;
+    color: #666;
+}
+
+.price-breakdown .total {
+    margin-top: 0.5rem;
+    font-weight: bold;
+    color: #343a40;
+}
+
+.collection-total {
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background-color: #e9ecef;
+    border-radius: 0.25rem;
+    font-weight: bold;
+    color: #343a40;
+    text-align: right;
+}
+
+.grand-total {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #007bff;
+    color: white;
+    border-radius: 0.25rem;
+    font-weight: bold;
+    text-align: right;
+    font-size: 1.2em;
+}
+
+/* Calculate Price button */
+#calculatePrice {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+/* Styles for screenshot mode */
+body.screenshot-mode .wall-dimensions-display,
+body.screenshot-mode .wall-controls,
+body.screenshot-mode .frame-controls,
+body.screenshot-mode .frame-dimensions,
+body.screenshot-mode .distance-indicators,
+body.screenshot-mode .spacing-indicator,
+body.screenshot-mode .boundary-marquee,
+body.screenshot-mode .frame::before /* Hide move indicator */ {
+    display: none !important;
+}

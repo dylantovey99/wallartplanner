@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wall Art Planner</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+    <!-- Beta Warning -->
+    <div style="background-color: #ffeb3b; color: #333; padding: 8px; text-align: center; font-size: 14px; font-weight: bold; width: 100%;">
+        This Wall art collection tool is a beta product, please cross-verify any results with BPro staff prior to placing a real order.
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="index.html" class="nav-link active">Wall Art Planner</a>
+        <a href="frame-calculator.html" class="nav-link">Frame Size Calculator</a>
+        <a href="print-calculator.html" class="nav-link">Print Size Calculator</a>
+    </nav>
+
+    <div class="container">
+        <!-- Wall Canvas -->
+        <div class="wall-section">
+            <div class="wall-dimensions-display">
+                <span class="wall-width-display">120.0"</span>
+                <span class="wall-height-display">Height: 96.0"</span>
+            </div>
+            <div class="wall-canvas" id="wallCanvas">
+                <img id="wallBackgroundImage" src="#" alt="Wall Background" style="display: none;">
+            </div>
+            <div class="wall-controls">
+                <label class="hide-icons-control">
+                    <input type="checkbox" id="hideIcons"> Hide icons
+                </label>
+                <label class="hide-all-control">
+                    <input type="checkbox" id="hideAll"> Hide all
+                </label>
+                <button id="screenshotBtn" class="btn-secondary">Screenshot Layout</button>
+                <button id="deleteAllFramesBtn" class="btn-danger">Delete All Frames</button>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-section">
+            <!-- Wall Dimensions -->
+            <section>
+                <h2>Wall Dimensions</h2>
+                <div class="section-content">
+                    <div class="input-row">
+                        <label>Width (inches)</label>
+                        <input type="number" id="wallWidth" value="120" min="24" max="600" step="0.1">
+                    </div>
+                    <div class="input-row">
+                        <label>Height (inches)</label>
+                        <input type="number" id="wallHeight" value="96" min="24" max="600" step="0.1">
+                    </div>
+                    <div class="input-row">
+                        <label title="Controls how frames snap when moving. Smaller values allow for more precise positioning, larger values make it easier to align frames.">Movement Snap Size (inches)</label>
+                        <select id="gridSize">
+                            <option value="0.25">0.25" (Fine)</option>
+                            <option value="0.5" selected>0.5" (Default)</option>
+                            <option value="1">1" (Medium)</option>
+                            <option value="2">2" (Coarse)</option>
+                        </select>
+                        <p class="help-text">Controls how precisely frames can be positioned. Smaller values allow for finer adjustments, while larger values make it easier to align frames to even increments.</p>
+                    </div>
+                    <div class="input-row">
+                        <label title="Controls the minimum distance between frames on the wall.">Minimum Frame Spacing (inches)</label>
+                        <select id="frameSpacing">
+                            <option value="0.25">0.25" (Minimal)</option>
+                            <option value="1" selected>1" (Default)</option>
+                            <option value="2">2" (Standard)</option>
+                            <option value="3">3" (Generous)</option>
+                            <option value="4">4" (Wide)</option>
+                            <option value="6">6" (Extra Wide)</option>
+                        </select>
+                        <p class="help-text">Sets the minimum distance maintained between frames when moving them. Larger values create more breathing room between frames for a more spacious layout.</p>
+                    </div>
+                    <div class="input-row">
+                        <label for="backgroundImageUpload">Upload Background Image</label>
+                        <input type="file" id="backgroundImageUpload" accept="image/jpeg, image/png">
+                        <p class="help-text">Background will be scaled to 2.4m height. Canvas will resize to image aspect ratio.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add New Collection -->
+            <section class="collapsed">
+                <h2>Add New Collection</h2>
+                <div class="section-content">
+                    <div class="input-row">
+                        <label>Print Width (inches)</label>
+                        <input type="number" id="printWidth" value="16" step="0.1" min="1" max="100">
+                    </div>
+                    <div class="input-row">
+                        <label>Print Height (inches)</label>
+                        <input type="number" id="printHeight" value="20" step="0.1" min="1" max="100">
+                    </div>
+                    <div class="input-row">
+                        <label>Matt Width (cm)</label>
+                        <input type="number" id="mattWidth" value="5" step="0.1" min="0" max="20">
+                    </div>
+                    <div class="input-row">
+                        <label>Frame Width</label>
+                        <select id="frameWidth">
+                            <option value="20">20mm (0.79")</option>
+                            <option value="30">30mm (1.18")</option>
+                            <option value="40">40mm (1.57")</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label>Frame Material</label>
+                        <select id="frameMaterial">
+                            <option value="black">Black</option>
+                            <option value="white">White</option>
+                            <option value="oak">Oak</option>
+                            <option value="walnut">Walnut</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label>Number of Frames</label>
+                        <input type="number" id="frameCount" value="1" min="1">
+                    </div>
+                    <button id="addCollection" class="btn-primary">+ Add Collection</button>
+                </div>
+            </section>
+
+            <!-- Frame Suggestions -->
+            <section class="collapsed">
+                <h2>Frame Suggestions</h2>
+                <div class="section-content">
+                    <p class="suggestion-info">Get suggestions for a complementary frame size based on your current layout. The suggested size will match the dimensions of your existing frame arrangement, accounting for matting and frame width to ensure proper spacing and visual balance.</p>
+                    <div class="input-row">
+                        <label title="Choose whether to match the width or height of your current frame arrangement">Match Dimension</label>
+                        <select id="matchDimension">
+                            <option value="width">Match Width</option>
+                            <option value="height">Match Height</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label title="Choose the orientation for the suggested frame">Print Orientation</label>
+                        <select id="printOrientation">
+                            <option value="auto">Auto (Match Layout)</option>
+                            <option value="portrait">Portrait</option>
+                            <option value="landscape">Landscape</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label title="Select the desired proportions for the suggested frame">Desired Aspect Ratio</label>
+                        <select id="aspectRatio">
+                            <option value="1">1:1 (Square)</option>
+                            <option value="1.33">4:3 (Standard)</option>
+                            <option value="1.5">3:2 (Photo)</option>
+                            <option value="1.77">16:9 (Wide)</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                    <div id="customRatioInputs" class="custom-ratio hidden">
+                        <div class="input-row">
+                            <label>Width Ratio</label>
+                            <input type="number" id="customRatioWidth" min="1" step="1">
+                        </div>
+                        <div class="input-row">
+                            <label>Height Ratio</label>
+                            <input type="number" id="customRatioHeight" min="1" step="1">
+                        </div>
+                    </div>
+                    <button id="getSuggestion" class="btn-secondary">Get Suggestion</button>
+                    <div id="suggestionResult" class="suggestion-result hidden">
+                        <h3>Suggested Frame Size</h3>
+                        <div class="suggestion-details">
+                            <div class="detail-row">
+                                <span>Print Size:</span>
+                                <span class="print-size"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span>Matt Width:</span>
+                                <span class="matt-width"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span>Frame Width:</span>
+                                <span class="frame-width"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span>Total Size:</span>
+                                <span class="total-size"></span>
+                            </div>
+                        </div>
+                        <p class="suggestion-note">Note: Size is calculated to match your current frame arrangement, not the entire wall dimensions. This ensures proper visual balance with existing frames.</p>
+                        <button id="applySuggestion" class="btn-primary">Apply Suggestion</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Collections -->
+            <section class="collapsed">
+                <h2>Price this Collection</h2>
+                <div class="section-content">
+                    <div id="collectionsLegend" class="collections-list"></div>
+                    <button id="calculatePrice" class="btn-primary">Calculate Collection Price</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Frame Template -->
+    <template id="frameTemplate">
+        <div class="frame">
+            <div class="frame-dimensions"></div>
+            <div class="frame-controls">
+                <button class="delete-btn">×</button>
+                <button class="frame-info-btn" title="View frame details">?</button>
+            </div>
+            <div class="frame-layers">
+                <div class="frame-outer"></div>
+                <div class="frame-matt"></div>
+                <div class="frame-print"></div>
+            </div>
+            <div class="distance-indicators">
+                <div class="distance-left"></div>
+                <div class="distance-right"></div>
+                <div class="distance-top"></div>
+                <div class="distance-bottom"></div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Frame Info Modal -->
+    <div id="frameInfoModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h3 class="modal-title">Frame Details</h3>
+            <div class="modal-detail">
+                <span class="modal-label">Print Size:</span>
+                <span class="modal-value print-size"></span>
+            </div>
+            <div class="modal-detail">
+                <span class="modal-label">Matt Width:</span>
+                <span class="modal-value matt-width"></span>
+            </div>
+            <div class="modal-detail">
+                <span class="modal-label">Frame Width:</span>
+                <span class="modal-value frame-width"></span>
+            </div>
+            <div class="modal-detail">
+                <span class="modal-label">Total Size:</span>
+                <span class="modal-value total-size"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Price Summary Modal -->
+    <div id="priceSummaryModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h3 class="modal-title">Collection Price Summary</h3>
+            <div id="priceSummaryContent"></div>
+        </div>
+    </div>
+
+    <!-- Load JavaScript files -->
+    <script src="js/utils.js" type="module"></script>
+    <script src="js/Frame.js" type="module"></script>
+    <script src="js/FrameDragManager.js" type="module"></script>
+    <script src="js/Collection.js" type="module"></script>
+    <script src="js/SuggestionEngine.js" type="module"></script>
+    <script src="js/PriceCalculator.js" type="module"></script>
+    <script src="js/WallArtPlanner.js" type="module"></script>
+    <script src="js/main.js" type="module"></script>
+</body>
+</html>

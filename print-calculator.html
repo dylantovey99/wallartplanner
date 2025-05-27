@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Size Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Beta Warning -->
+    <div style="background-color: #ffeb3b; color: #333; padding: 8px; text-align: center; font-size: 14px; font-weight: bold; width: 100%;">
+        This Wall art collection tool is a beta product, please cross-verify any results with BPro staff prior to placing a real order.
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="index.html" class="nav-link">Wall Art Planner</a>
+        <a href="frame-calculator.html" class="nav-link">Frame Size Calculator</a>
+        <a href="print-calculator.html" class="nav-link active">Print Size Calculator</a>
+    </nav>
+
+    <div class="container">
+        <div class="controls-section">
+            <section>
+                <h3>Calculate Print Size from Total Frame Size</h3>
+                <p>Enter your desired total frame dimensions, mat width, and frame width to calculate the required print size.</p>
+                
+                <div class="unit-toggle">
+                    <span id="imperial-label" class="unit-label-text">Imperial</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="unitToggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span id="metric-label" class="unit-label-text">Metric</span>
+                </div>
+
+                <div class="input-row">
+                    <label>Total Frame Width <span class="unit-label">inches</span></label>
+                    <input type="number" id="totalWidth" class="input-field" min="0" value="16">
+                </div>
+
+                <div class="input-row">
+                    <label>Total Frame Height <span class="unit-label">inches</span></label>
+                    <input type="number" id="totalHeight" class="input-field" min="0" value="20">
+                </div>
+
+                <div class="input-row">
+                    <label>Mat Width (cm)</label>
+                    <input type="number" id="matWidth" class="input-field" min="0" value="5">
+                </div>
+
+                <div class="input-row">
+                    <label>Frame Width</label>
+                    <div class="frame-options">
+                        <label class="frame-option">
+                            <input type="radio" name="frameWidth" value="20" checked>
+                            <span>20mm (<span class="frame-convert">0.79 inches</span>)</span>
+                        </label>
+                        <label class="frame-option">
+                            <input type="radio" name="frameWidth" value="30">
+                            <span>30mm (<span class="frame-convert">1.18 inches</span>)</span>
+                        </label>
+                        <label class="frame-option">
+                            <input type="radio" name="frameWidth" value="40">
+                            <span>40mm (<span class="frame-convert">1.57 inches</span>)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="preview-container">
+                    <div id="framePreview" class="frame-preview"></div>
+                </div>
+
+                <div class="dimensions-summary">
+                    <h3>Required Print Size:</h3>
+                    <p id="printDimensions"></p>
+                </div>
+
+                <button id="addToPlanner" class="btn-primary">Add to Wall Art Planner</button>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const MM_TO_INCHES = 1/25.4;
+            const CM_TO_INCHES = 1/2.54;
+            const FRAME_OPTIONS = [
+                { mm: 20, inches: 20 * MM_TO_INCHES },
+                { mm: 30, inches: 30 * MM_TO_INCHES },
+                { mm: 40, inches: 40 * MM_TO_INCHES }
+            ];
+
+            let useMetric = false;
+            let dimensions = {
+                totalWidth: 16,
+                totalHeight: 20,
+                matWidth: 5, // Store in cm
+                frameWidth: FRAME_OPTIONS[0].inches,
+                printWidth: 0, // Will be calculated
+                printHeight: 0 // Will be calculated
+            };
+
+            const unitToggle = document.getElementById('unitToggle');
+            const totalWidth = document.getElementById('totalWidth');
+            const totalHeight = document.getElementById('totalHeight');
+            const matWidth = document.getElementById('matWidth');
+            const frameWidthInputs = document.getElementsByName('frameWidth');
+            const preview = document.getElementById('framePreview');
+            const printDimensions = document.getElementById('printDimensions');
+            const unitLabels = document.getElementsByClassName('unit-label');
+            const imperialLabel = document.getElementById('imperial-label');
+            const metricLabel = document.getElementById('metric-label');
+            const frameConvertLabels = document.getElementsByClassName('frame-convert');
+            const addToPlannerBtn = document.getElementById('addToPlanner');
+
+            function toMetric(inches) {
+                return (inches * 2.54).toFixed(1);
+            }
+
+            function toImperial(cm) {
+                return (cm / 2.54).toFixed(2);
+            }
+
+            function getDisplayValue(inches) {
+                return useMetric ? toMetric(inches) : inches.toFixed(2);
+            }
+
+            function calculatePrintSize() {
+                // Convert all dimensions to inches for calculation
+                const totalWidthInches = useMetric ? dimensions.totalWidth / 2.54 : dimensions.totalWidth;
+                const totalHeightInches = useMetric ? dimensions.totalHeight / 2.54 : dimensions.totalHeight;
+                const matWidthInches = dimensions.matWidth / 2.54; // Convert cm to inches
+                
+                // Calculate print dimensions by subtracting mat and frame from total
+                dimensions.printWidth = totalWidthInches - (2 * matWidthInches) - (2 * dimensions.frameWidth);
+                dimensions.printHeight = totalHeightInches - (2 * matWidthInches) - (2 * dimensions.frameWidth);
+                
+                // Ensure print dimensions are not negative
+                dimensions.printWidth = Math.max(0, dimensions.printWidth);
+                dimensions.printHeight = Math.max(0, dimensions.printHeight);
+                
+                return {
+                    width: dimensions.printWidth,
+                    height: dimensions.printHeight
+                };
+            }
+
+            function updateDisplay() {
+                // Update inputs
+                totalWidth.value = getDisplayValue(dimensions.totalWidth);
+                totalHeight.value = getDisplayValue(dimensions.totalHeight);
+                matWidth.value = dimensions.matWidth.toFixed(1); // Always show in cm
+
+                // Update unit labels
+                const unit = useMetric ? 'cm' : 'inches';
+                Array.from(unitLabels).forEach(label => label.textContent = unit);
+
+                // Update frame conversion labels
+                Array.from(frameConvertLabels).forEach((label, index) => {
+                    const inches = FRAME_OPTIONS[index].inches;
+                    label.textContent = useMetric 
+                        ? `${(inches * 2.54).toFixed(1)} cm` 
+                        : `${inches.toFixed(2)} inches`;
+                });
+
+                // Calculate print dimensions
+                const printSize = calculatePrintSize();
+                
+                // Display print dimensions
+                printDimensions.textContent = `Width: ${getDisplayValue(printSize.width)} ${unit} × Height: ${getDisplayValue(printSize.height)} ${unit}`;
+                
+                // Check if print dimensions are valid
+                if (printSize.width <= 0 || printSize.height <= 0) {
+                    printDimensions.innerHTML += '<br><span style="color: red;">Warning: Frame and mat are too large for the total size. Reduce mat/frame width or increase total size.</span>';
+                }
+
+                // Update preview
+                const maxWidth = 300;
+                const maxHeight = 300;
+                const totalWidthInches = useMetric ? dimensions.totalWidth / 2.54 : dimensions.totalWidth;
+                const totalHeightInches = useMetric ? dimensions.totalHeight / 2.54 : dimensions.totalHeight;
+                const matWidthInches = dimensions.matWidth / 2.54;
+                
+                const scale = Math.min(
+                    maxWidth / totalWidthInches,
+                    maxHeight / totalHeightInches
+                );
+
+                const scaledWidth = totalWidthInches * scale;
+                const scaledHeight = totalHeightInches * scale;
+                const scaledFrameWidth = dimensions.frameWidth * scale;
+                const scaledMatWidth = matWidthInches * scale;
+                const scaledPrintWidth = Math.max(0, printSize.width * scale);
+                const scaledPrintHeight = Math.max(0, printSize.height * scale);
+
+                preview.innerHTML = `
+                    <div class="frame-outer" style="width: ${scaledWidth}px; height: ${scaledHeight}px;">
+                        <div class="frame-mat" style="
+                            top: ${scaledFrameWidth}px;
+                            left: ${scaledFrameWidth}px;
+                            width: ${scaledWidth - (scaledFrameWidth * 2)}px;
+                            height: ${scaledHeight - (scaledFrameWidth * 2)}px;
+                        ">
+                            <div class="frame-print" style="
+                                top: ${scaledMatWidth}px;
+                                left: ${scaledMatWidth}px;
+                                width: ${scaledPrintWidth}px;
+                                height: ${scaledPrintHeight}px;
+                            "></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            unitToggle.addEventListener('change', (e) => {
+                useMetric = e.target.checked;
+                imperialLabel.style.fontWeight = useMetric ? '400' : '600';
+                metricLabel.style.fontWeight = useMetric ? '600' : '400';
+                updateDisplay();
+            });
+
+            function handleInputChange(e) {
+                const value = parseFloat(e.target.value) || 0;
+                if (value < 0) return;
+                
+                const inchValue = useMetric ? value / 2.54 : value;
+                
+                switch(e.target.id) {
+                    case 'totalWidth':
+                        dimensions.totalWidth = inchValue;
+                        break;
+                    case 'totalHeight':
+                        dimensions.totalHeight = inchValue;
+                        break;
+                }
+                
+                updateDisplay();
+            }
+
+            totalWidth.addEventListener('change', handleInputChange);
+            totalHeight.addEventListener('change', handleInputChange);
+            
+            // Special handler for matWidth since it's always in cm
+            matWidth.addEventListener('change', (e) => {
+                dimensions.matWidth = parseFloat(e.target.value) || 0; // Store in cm
+                updateDisplay();
+            });
+
+            frameWidthInputs.forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const mmValue = parseInt(e.target.value);
+                    dimensions.frameWidth = mmValue * MM_TO_INCHES;
+                    updateDisplay();
+                });
+            });
+
+            addToPlannerBtn.addEventListener('click', () => {
+                // Calculate print dimensions
+                const printSize = calculatePrintSize();
+                
+                if (printSize.width <= 0 || printSize.height <= 0) {
+                    alert('Invalid print dimensions. Please adjust your measurements.');
+                    return;
+                }
+
+                const frameData = {
+                    printWidth: Number(printSize.width),
+                    printHeight: Number(printSize.height),
+                    matWidth: Number(dimensions.matWidth), // Already in cm
+                    frameWidth: Number(dimensions.frameWidth),
+                    count: 1
+                };
+                
+                // Validate data before storing
+                if (frameData.printWidth <= 0 || frameData.printHeight <= 0 || 
+                    frameData.matWidth < 0 || frameData.frameWidth <= 0) {
+                    alert('Please enter valid positive dimensions');
+                    return;
+                }
+                
+                // Store the frame data for the planner
+                console.log('Print Calculator: Storing frame data:', frameData);
+                localStorage.setItem('newFrameData', JSON.stringify(frameData));
+                
+                // Debug: Verify data was stored
+                const storedData = localStorage.getItem('newFrameData');
+                console.log('Print Calculator: Verified stored data:', storedData);
+                
+                // Redirect to index.html
+                window.location.href = 'index.html';
+            });
+
+            // Initialize display
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>
