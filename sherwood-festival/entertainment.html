@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Entertainment at Sherwood Community Festival - Multiple stages featuring live music, dance, performances, and local talent">
+    <title>Entertainment | Sherwood Community Festival</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        .page-header {
+            padding: 150px 0 100px;
+            background: var(--gradient-hero);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+        }
+
+        .stages-section {
+            padding: 4rem 0;
+            background: var(--white);
+        }
+
+        .stage-card {
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .stage-header {
+            padding: 2rem;
+            color: var(--white);
+            text-align: center;
+        }
+
+        .stage-header h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stage-1 { background: var(--gradient-1); }
+        .stage-2 { background: var(--gradient-2); }
+        .stage-3 { background: var(--gradient-3); }
+        .stage-4 { background: var(--gradient-4); }
+
+        .stage-content {
+            padding: 2rem;
+            background: var(--white);
+        }
+
+        .stage-description {
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .performance-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .performance-item {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            align-items: center;
+        }
+
+        .performance-time {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            min-width: 80px;
+        }
+
+        .performance-details h4 {
+            color: var(--dark-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .performance-details p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .activities-section {
+            padding: 4rem 0;
+            background: var(--light-color);
+        }
+
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .activity-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .activity-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .activity-card h3 {
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+        }
+
+        .activity-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .performance-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .performance-time {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🎪</span>
+                    <span class="logo-text">Sherwood Festival</span>
+                </a>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="entertainment.html" class="active">Entertainment</a></li>
+                    <li><a href="stalls.html">Stalls</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="contact.html" class="btn-nav">Volunteer</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Entertainment</h1>
+            <p>Six Hours of Non-Stop Music, Dance & Performances</p>
+        </div>
+    </section>
+
+    <!-- Stages Section -->
+    <section class="stages-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Our Stages</h2>
+                <p class="section-subtitle">Multiple Venues Showcasing Local Talent</p>
+            </div>
+
+            <!-- Arbor Green Stage -->
+            <div class="stage-card">
+                <div class="stage-header stage-1">
+                    <h2>🎤 Arbor Green Stage</h2>
+                    <p>Main Stage - Premier Performances</p>
+                </div>
+                <div class="stage-content">
+                    <p class="stage-description">Our main stage features the festival's headlining acts and most popular performances. With professional sound and lighting, the Arbor Green Stage provides a concert-quality experience in the heart of the Arboretum.</p>
+                    <h3 style="margin-bottom: 1rem; color: var(--dark-color);">Sample Performance Schedule</h3>
+                    <div class="performance-list">
+                        <div class="performance-item">
+                            <div class="performance-time">2:30 PM</div>
+                            <div class="performance-details">
+                                <h4>Opening Act</h4>
+                                <p>Local Brisbane musicians kick off the festival</p>
+                            </div>
+                        </div>
+                        <div class="performance-item">
+                            <div class="performance-time">3:30 PM</div>
+                            <div class="performance-details">
+                                <h4>Contemporary Dance Collective</h4>
+                                <p>Modern dance performances from local troupes</p>
+                            </div>
+                        </div>
+                        <div class="performance-item">
+                            <div class="performance-time">5:00 PM</div>
+                            <div class="performance-details">
+                                <h4>Headline Musical Act</h4>
+                                <p>Featured artist performing original works</p>
+                            </div>
+                        </div>
+                        <div class="performance-item">
+                            <div class="performance-time">7:00 PM</div>
+                            <div class="performance-details">
+                                <h4>Closing Performance</h4>
+                                <p>Festival finale with community favorites</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fig Tree Grove Stage -->
+            <div class="stage-card">
+                <div class="stage-header stage-2">
+                    <h2>🌳 Fig Tree Grove Stage</h2>
+                    <p>Acoustic & Intimate Performances</p>
+                </div>
+                <div class="stage-content">
+                    <p class="stage-description">Nestled under the beautiful fig trees, this stage offers a more intimate setting for acoustic performances, spoken word, and community presentations. It's the perfect spot to relax and enjoy the natural beauty of the Arboretum.</p>
+                    <h3 style="margin-bottom: 1rem; color: var(--dark-color);">Featured Acts</h3>
+                    <div class="performance-list">
+                        <div class="performance-item">
+                            <div class="performance-time">3:00 PM</div>
+                            <div class="performance-details">
+                                <h4>Acoustic Sessions</h4>
+                                <p>Singer-songwriters and acoustic guitar performances</p>
+                            </div>
+                        </div>
+                        <div class="performance-item">
+                            <div class="performance-time">4:30 PM</div>
+                            <div class="performance-details">
+                                <h4>Spoken Word Poetry</h4>
+                                <p>Local poets sharing original works</p>
+                            </div>
+                        </div>
+                        <div class="performance-item">
+                            <div class="performance-time">6:00 PM</div>
+                            <div class="performance-details">
+                                <h4>Community Choir</h4>
+                                <p>Local choirs performing beloved classics</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Festival Green -->
+            <div class="stage-card">
+                <div class="stage-header stage-3">
+                    <h2>🎭 Festival Green</h2>
+                    <p>Family & Children's Entertainment</p>
+                </div>
+                <div class="stage-content">
+                    <p class="stage-description">Dedicated to family-friendly entertainment, Festival Green features performances and activities specifically designed for children and families. From magic shows to interactive storytelling, there's always something exciting happening here.</p>
+                    <h3 style="margin-bottom: 1rem; color: var(--dark-color);">Family Program</h3>
+                    <div class="performance-list">
+                        <div class="performance-item">
+                            <div class="performance-time">2:30 PM</div>
+                            <div class="performance-details">
+                                <h4>Children's Theatre</h4>
+                                <p>Interactive shows and storytelling for young audiences</p>
+                            </div>
+                        </div>
+                        <div class="performance-item">
+                            <div class="performance-time">4:00 PM</div>
+                            <div class="performance-details">
+                                <h4>Magic & Illusion Show</h4>
+                                <p>Professional magicians entertaining all ages</p>
+                            </div>
+                        </div>
+                        <div class="performance-item">
+                            <div class="performance-time">5:30 PM</div>
+                            <div class="performance-details">
+                                <h4>Puppet Shows</h4>
+                                <p>Creative puppetry performances</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buskers' Corner -->
+            <div class="stage-card">
+                <div class="stage-header stage-4">
+                    <h2>🎸 Buskers' Corner</h2>
+                    <p>Street Performances & Emerging Artists</p>
+                </div>
+                <div class="stage-content">
+                    <p class="stage-description">A free-form space where street performers, emerging artists, and spontaneous entertainment comes alive. Buskers' Corner celebrates the raw energy and creativity of street performance culture.</p>
+                    <h3 style="margin-bottom: 1rem; color: var(--dark-color);">Continuous Entertainment</h3>
+                    <div class="performance-list">
+                        <div class="performance-item">
+                            <div class="performance-time">2-8 PM</div>
+                            <div class="performance-details">
+                                <h4>Rolling Street Performances</h4>
+                                <p>Musicians, jugglers, comedians, and performance artists throughout the day</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Activities Section -->
+    <section class="activities-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Arts Hub & Activities</h2>
+                <p class="section-subtitle">Interactive Workshops & Creative Experiences</p>
+            </div>
+            <div class="activities-grid">
+                <div class="activity-card">
+                    <div class="activity-icon">🎨</div>
+                    <h3>Arts Hub</h3>
+                    <p>Explore your creativity with hands-on art activities, painting workshops, and craft sessions led by local artists.</p>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-icon">✨</div>
+                    <h3>Decoration Station</h3>
+                    <p>Our popular Decoration Station returns with face painting, temporary tattoos, and creative decoration activities for all ages.</p>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-icon">🎪</div>
+                    <h3>Workshops</h3>
+                    <p>Participate in exciting workshops including dance, music, crafts, and more throughout the day.</p>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-icon">🎭</div>
+                    <h3>Interactive Performances</h3>
+                    <p>Join in participatory performances and community activities that bring everyone together.</p>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-icon">📸</div>
+                    <h3>Photo Opportunities</h3>
+                    <p>Capture memories at our themed photo booths and installations throughout the Arboretum.</p>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-icon">🎵</div>
+                    <h3>Roving Entertainment</h3>
+                    <p>Surprise encounters with stilt walkers, musicians, and performers wandering the festival grounds.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Sherwood Community Festival</h4>
+                    <p>A not-for-profit, community-driven celebration of local culture, creativity, and connection.</p>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/sherwoodcommunityfestival/" target="_blank" aria-label="Facebook">📘</a>
+                        <a href="mailto:secretary@sherwoodfestival.com.au" aria-label="Email">📧</a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="entertainment.html">Entertainment</a></li>
+                        <li><a href="stalls.html">Stallholders</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Get Involved</h4>
+                    <ul class="footer-links">
+                        <li><a href="contact.html">Volunteer</a></li>
+                        <li><a href="stalls.html">Become a Stallholder</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul class="footer-contact">
+                        <li>📧 secretary@sherwoodfestival.com.au</li>
+                        <li>📱 0450 096 999</li>
+                        <li>📮 PO Box 224, Sherwood, QLD 4075</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Sherwood Community Festival. All rights reserved. | A volunteer-run, not-for-profit community event.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

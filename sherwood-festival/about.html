@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn about the Sherwood Community Festival - a volunteer-run, not-for-profit celebration bringing Brisbane's community together">
+    <title>About Us | Sherwood Community Festival</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        .page-header {
+            padding: 150px 0 100px;
+            background: var(--gradient-hero);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+        }
+
+        .content-section {
+            padding: 4rem 0;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-bottom: 4rem;
+        }
+
+        .content-text h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+        }
+
+        .content-text p {
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .content-image {
+            background: var(--gradient-hero);
+            height: 400px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8rem;
+        }
+
+        .values-section {
+            background: var(--light-color);
+            padding: 4rem 0;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .value-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+
+        .value-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .value-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+
+        .value-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .team-section {
+            padding: 4rem 0;
+            background: var(--white);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-left: 4px solid var(--primary-color);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin: 2rem 0;
+        }
+
+        .highlight-box h3 {
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+        }
+
+        .highlight-box p {
+            color: var(--text-light);
+            line-height: 1.8;
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .content-image {
+                height: 250px;
+                font-size: 5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🎪</span>
+                    <span class="logo-text">Sherwood Festival</span>
+                </a>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html" class="active">About</a></li>
+                    <li><a href="entertainment.html">Entertainment</a></li>
+                    <li><a href="stalls.html">Stalls</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="contact.html" class="btn-nav">Volunteer</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>About Sherwood Festival</h1>
+            <p>Building Community Through Celebration</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="content-section">
+        <div class="container">
+            <div class="content-grid">
+                <div class="content-text">
+                    <h2>Our Story</h2>
+                    <p>The Sherwood Community Festival has been bringing our local community together for years, creating a vibrant celebration of culture, creativity, and connection in the beautiful Sherwood Arboretum.</p>
+                    <p>What started as a small gathering has grown into one of Brisbane's most beloved community events, attracting thousands of visitors each year while maintaining its grassroots, community-focused spirit.</p>
+                </div>
+                <div class="content-image">🎪</div>
+            </div>
+
+            <div class="content-grid">
+                <div class="content-image">🤝</div>
+                <div class="content-text">
+                    <h2>100% Volunteer-Run</h2>
+                    <p>We're incredibly proud to be a completely volunteer-run organization. Every single person involved in the Sherwood Community Festival gives their time, energy, and passion because they believe in the power of community.</p>
+                    <p>There are no paid staff - just dedicated community members who work tirelessly throughout the year to plan, organize, and deliver this amazing event.</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h3>Not-For-Profit Community Organization</h3>
+                <p>The Sherwood Community Festival is a not-for-profit, member-based Incorporated Association. All funds raised go directly back into making the festival bigger and better each year, supporting local artists and community groups, and strengthening our community bonds.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="values-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Our Values</h2>
+                <p class="section-subtitle">What Drives Our Community</p>
+            </div>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">🌟</div>
+                    <h3>Community First</h3>
+                    <p>Everything we do is for the community, by the community. We prioritize inclusivity, accessibility, and creating spaces where everyone feels welcome.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🎨</div>
+                    <h3>Celebrate Local</h3>
+                    <p>We showcase local talent, support local businesses, and highlight the incredible creativity and diversity within our community.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">💚</div>
+                    <h3>Sustainability</h3>
+                    <p>We're committed to minimizing our environmental impact and promoting sustainable practices throughout the festival.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🙌</div>
+                    <h3>Volunteer Spirit</h3>
+                    <p>We believe in the power of people coming together to create something special. Our volunteers are the heart of everything we do.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Join Our Team</h2>
+                <p class="section-subtitle">Hundreds of Hours, Countless Memories</p>
+            </div>
+            <div class="content-text" style="max-width: 800px; margin: 0 auto; text-align: center;">
+                <p style="margin-bottom: 2rem;">Our volunteer committee works year-round to bring the festival to life. From planning and logistics to day-of coordination, every aspect of the festival is managed by passionate community members.</p>
+                <p style="margin-bottom: 2rem;">In 2024, despite torrential rain forcing the cancellation of the Saturday event, our volunteers showed incredible resilience and dedication. Hundreds of hours of preparation demonstrated the unwavering commitment of our community.</p>
+                <a href="contact.html" class="btn btn-primary">Get Involved</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Sherwood Community Festival</h4>
+                    <p>A not-for-profit, community-driven celebration of local culture, creativity, and connection.</p>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/sherwoodcommunityfestival/" target="_blank" aria-label="Facebook">📘</a>
+                        <a href="mailto:secretary@sherwoodfestival.com.au" aria-label="Email">📧</a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="entertainment.html">Entertainment</a></li>
+                        <li><a href="stalls.html">Stallholders</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Get Involved</h4>
+                    <ul class="footer-links">
+                        <li><a href="contact.html">Volunteer</a></li>
+                        <li><a href="stalls.html">Become a Stallholder</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul class="footer-contact">
+                        <li>📧 secretary@sherwoodfestival.com.au</li>
+                        <li>📱 0450 096 999</li>
+                        <li>📮 PO Box 224, Sherwood, QLD 4075</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Sherwood Community Festival. All rights reserved. | A volunteer-run, not-for-profit community event.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

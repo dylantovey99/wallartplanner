@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Contact Sherwood Community Festival - Get in touch to volunteer, become a stallholder, or learn more about the festival">
+    <title>Contact Us | Sherwood Community Festival</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        .page-header {
+            padding: 150px 0 100px;
+            background: var(--gradient-hero);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+        }
+
+        .contact-section {
+            padding: 4rem 0;
+            background: var(--white);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        .contact-form {
+            background: var(--light-color);
+            padding: 3rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+        }
+
+        .contact-form h2 {
+            color: var(--dark-color);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            background: var(--white);
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: var(--gradient-hero);
+            color: var(--white);
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .contact-info {
+            background: var(--light-color);
+            padding: 3rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+        }
+
+        .contact-info h2 {
+            color: var(--dark-color);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .info-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: start;
+        }
+
+        .info-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .info-details h3 {
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .info-details p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .info-details a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .info-details a:hover {
+            color: var(--dark-color);
+        }
+
+        .social-section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .social-section h3 {
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+        }
+
+        .social-links-large {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-links-large a {
+            font-size: 2.5rem;
+            transition: var(--transition);
+        }
+
+        .social-links-large a:hover {
+            transform: scale(1.2);
+        }
+
+        .map-section {
+            padding: 4rem 0;
+            background: var(--light-color);
+        }
+
+        .map-container {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+        }
+
+        .map-container h2 {
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+        }
+
+        .map-container p {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .location-icon {
+            font-size: 5rem;
+            margin: 2rem 0;
+        }
+
+        .address {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+        }
+
+        .form-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .form-message.success {
+            background: rgba(67, 233, 123, 0.2);
+            color: #2d7a4b;
+            border: 2px solid #43e97b;
+        }
+
+        .form-message.error {
+            background: rgba(255, 107, 107, 0.2);
+            color: #a83232;
+            border: 2px solid var(--primary-color);
+        }
+
+        .faq-section {
+            padding: 4rem 0;
+            background: var(--white);
+        }
+
+        .faq-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: var(--light-color);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item h3 {
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .faq-item p {
+            color: var(--text-light);
+            line-height: 1.8;
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .contact-form,
+            .contact-info {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🎪</span>
+                    <span class="logo-text">Sherwood Festival</span>
+                </a>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="entertainment.html">Entertainment</a></li>
+                    <li><a href="stalls.html">Stalls</a></li>
+                    <li><a href="contact.html" class="active">Contact</a></li>
+                    <li><a href="contact.html" class="btn-nav">Volunteer</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Get In Touch</h1>
+            <p>We'd Love to Hear From You</p>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="contact-grid">
+                <!-- Contact Form -->
+                <div class="contact-form">
+                    <h2>Send Us a Message</h2>
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Your Name *</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject *</label>
+                            <select id="subject" name="subject" required>
+                                <option value="">Select a subject...</option>
+                                <option value="volunteer">Volunteer Inquiry</option>
+                                <option value="stallholder">Stallholder Application</option>
+                                <option value="general">General Question</option>
+                                <option value="sponsor">Sponsorship Opportunity</option>
+                                <option value="media">Media Inquiry</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Your Message *</label>
+                            <textarea id="message" name="message" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">Send Message</button>
+                    </form>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="contact-info">
+                    <h2>Contact Information</h2>
+
+                    <div class="info-item">
+                        <div class="info-icon">📧</div>
+                        <div class="info-details">
+                            <h3>Email</h3>
+                            <p><a href="mailto:secretary@sherwoodfestival.com.au">secretary@sherwoodfestival.com.au</a></p>
+                            <p style="font-size: 0.9rem; margin-top: 0.5rem;">We typically respond within 2-3 business days</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">📱</div>
+                        <div class="info-details">
+                            <h3>Phone / SMS</h3>
+                            <p><a href="tel:0450096999">0450 096 999</a></p>
+                            <p style="font-size: 0.9rem; margin-top: 0.5rem;">Text or call during business hours</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">📮</div>
+                        <div class="info-details">
+                            <h3>Postal Address</h3>
+                            <p>PO Box 224<br>Sherwood, QLD 4075<br>Australia</p>
+                        </div>
+                    </div>
+
+                    <div class="social-section">
+                        <h3>Follow Us</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1rem;">Stay updated with festival news and announcements</p>
+                        <div class="social-links-large">
+                            <a href="https://www.facebook.com/sherwoodcommunityfestival/" target="_blank" aria-label="Facebook">📘</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-section">
+        <div class="container">
+            <div class="map-container">
+                <h2>Festival Location</h2>
+                <p>The Sherwood Community Festival is held at the beautiful Sherwood Arboretum</p>
+                <div class="location-icon">📍</div>
+                <p class="address">Sherwood Arboretum<br>Dewar Terrace, Sherwood QLD 4075</p>
+                <p style="color: var(--text-light); max-width: 600px; margin: 1rem auto;">The Arboretum is easily accessible by public transport and has ample parking nearby. The venue features beautiful green spaces, mature trees, and accessible facilities.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Frequently Asked Questions</h2>
+                <p class="section-subtitle">Quick Answers to Common Questions</p>
+            </div>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <h3>When is the next Sherwood Community Festival?</h3>
+                    <p>The festival is typically held annually in November. The 2025 festival date will be announced soon. Follow us on Facebook for updates!</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Is the festival free to attend?</h3>
+                    <p>Yes! The Sherwood Community Festival is completely free to attend. We're a not-for-profit community event focused on bringing people together.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>How can I volunteer?</h3>
+                    <p>We'd love to have you! Use the contact form above and select "Volunteer Inquiry" as the subject. We'll get back to you with information about available volunteer opportunities.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Can I bring my dog?</h3>
+                    <p>While we love pets, please check with the Sherwood Arboretum's pet policy before bringing animals. Service animals are always welcome.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Are there food and drinks available?</h3>
+                    <p>Absolutely! We have a variety of food vendors and stalls offering diverse cuisines, beverages, and treats throughout the festival.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Is the venue accessible?</h3>
+                    <p>Yes, the Sherwood Arboretum has accessible pathways and facilities. If you have specific accessibility requirements, please contact us in advance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Sherwood Community Festival</h4>
+                    <p>A not-for-profit, community-driven celebration of local culture, creativity, and connection.</p>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/sherwoodcommunityfestival/" target="_blank" aria-label="Facebook">📘</a>
+                        <a href="mailto:secretary@sherwoodfestival.com.au" aria-label="Email">📧</a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="entertainment.html">Entertainment</a></li>
+                        <li><a href="stalls.html">Stallholders</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Get Involved</h4>
+                    <ul class="footer-links">
+                        <li><a href="contact.html">Volunteer</a></li>
+                        <li><a href="stalls.html">Become a Stallholder</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul class="footer-contact">
+                        <li>📧 secretary@sherwoodfestival.com.au</li>
+                        <li>📱 0450 096 999</li>
+                        <li>📮 PO Box 224, Sherwood, QLD 4075</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Sherwood Community Festival. All rights reserved. | A volunteer-run, not-for-profit community event.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

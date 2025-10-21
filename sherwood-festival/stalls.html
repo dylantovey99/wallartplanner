@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Become a stallholder at Sherwood Community Festival - Showcase your products, crafts, and services to thousands of Brisbane community members">
+    <title>Stallholders | Sherwood Community Festival</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        .page-header {
+            padding: 150px 0 100px;
+            background: var(--gradient-hero);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+        }
+
+        .intro-section {
+            padding: 4rem 0;
+            background: var(--white);
+            text-align: center;
+        }
+
+        .intro-section p {
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            color: var(--text-light);
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .benefits-section {
+            padding: 4rem 0;
+            background: var(--light-color);
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .benefit-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .benefit-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .benefit-card h3 {
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .benefit-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .stall-types-section {
+            padding: 4rem 0;
+            background: var(--white);
+        }
+
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .type-card {
+            background: linear-gradient(135deg, var(--light-color) 0%, var(--white) 100%);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .type-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+        }
+
+        .type-card h3 {
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .type-card ul {
+            list-style: none;
+        }
+
+        .type-card li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-dark);
+        }
+
+        .type-card li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-weight: 700;
+        }
+
+        .requirements-section {
+            padding: 4rem 0;
+            background: var(--light-color);
+        }
+
+        .requirements-content {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 3rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+        }
+
+        .requirements-content h3 {
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .requirements-content ul {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .requirements-content li {
+            padding: 0.8rem 0;
+            padding-left: 2rem;
+            position: relative;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .requirements-content li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.1) 0%, rgba(78, 205, 196, 0.05) 100%);
+            border-left: 4px solid var(--secondary-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin: 2rem 0;
+        }
+
+        .info-box p {
+            color: var(--text-dark);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 107, 107, 0.05) 100%);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin: 2rem 0;
+        }
+
+        .warning-box p {
+            color: var(--text-dark);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .apply-section {
+            padding: 4rem 0;
+            background: var(--gradient-hero);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .apply-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .apply-section p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .requirements-content {
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🎪</span>
+                    <span class="logo-text">Sherwood Festival</span>
+                </a>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="entertainment.html">Entertainment</a></li>
+                    <li><a href="stalls.html" class="active">Stalls</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="contact.html" class="btn-nav">Volunteer</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Become a Stallholder</h1>
+            <p>Join Our Vibrant Festival Market</p>
+        </div>
+    </section>
+
+    <!-- Intro Section -->
+    <section class="intro-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Showcase Your Products & Services</h2>
+            </div>
+            <p>The Sherwood Community Festival attracts thousands of visitors each year, creating an incredible opportunity to showcase your products, crafts, and services to the local community.</p>
+            <p>Whether you're a local artist, crafter, community group, or food vendor, we invite you to be part of our festival marketplace.</p>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Why Join Our Market?</h2>
+                <p class="section-subtitle">Benefits of Being a Festival Stallholder</p>
+            </div>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">👥</div>
+                    <h3>Large Audience</h3>
+                    <p>Access to thousands of festival attendees actively seeking unique products and experiences</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🏘️</div>
+                    <h3>Local Community</h3>
+                    <p>Connect directly with your local community and build lasting customer relationships</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🎉</div>
+                    <h3>Vibrant Atmosphere</h3>
+                    <p>Be part of a lively festival environment with entertainment and activities all day</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🤝</div>
+                    <h3>Community Support</h3>
+                    <p>Join a supportive network of local businesses and community organizations</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📣</div>
+                    <h3>Brand Exposure</h3>
+                    <p>Increase awareness of your brand through festival marketing and social media</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">💚</div>
+                    <h3>Support Local</h3>
+                    <p>Contribute to a not-for-profit community event that brings people together</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stall Types Section -->
+    <section class="stall-types-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Types of Stalls Welcome</h2>
+                <p class="section-subtitle">We Welcome Diverse Vendors & Community Groups</p>
+            </div>
+            <div class="type-grid">
+                <div class="type-card">
+                    <h3>🎨 Arts & Crafts</h3>
+                    <ul>
+                        <li>Handmade crafts and artwork</li>
+                        <li>Jewelry and accessories</li>
+                        <li>Pottery and ceramics</li>
+                        <li>Photography and prints</li>
+                        <li>Textiles and clothing</li>
+                    </ul>
+                </div>
+                <div class="type-card">
+                    <h3>🍔 Food & Beverage</h3>
+                    <ul>
+                        <li>Food trucks and stalls</li>
+                        <li>Baked goods</li>
+                        <li>Coffee and beverages</li>
+                        <li>International cuisine</li>
+                        <li>Healthy food options</li>
+                    </ul>
+                </div>
+                <div class="type-card">
+                    <h3>🌱 Local Products</h3>
+                    <ul>
+                        <li>Plants and gardening</li>
+                        <li>Natural and eco products</li>
+                        <li>Homewares and décor</li>
+                        <li>Candles and aromatherapy</li>
+                        <li>Sustainable goods</li>
+                    </ul>
+                </div>
+                <div class="type-card">
+                    <h3>🎪 Community Groups</h3>
+                    <ul>
+                        <li>Non-profit organizations</li>
+                        <li>Community services</li>
+                        <li>Educational groups</li>
+                        <li>Sports clubs</li>
+                        <li>Fundraising stalls</li>
+                    </ul>
+                </div>
+                <div class="type-card">
+                    <h3>🎁 Retail & Services</h3>
+                    <ul>
+                        <li>Local businesses</li>
+                        <li>Professional services</li>
+                        <li>Health and wellness</li>
+                        <li>Children's products</li>
+                        <li>Pet products and services</li>
+                    </ul>
+                </div>
+                <div class="type-card">
+                    <h3>🎯 Activities & Games</h3>
+                    <ul>
+                        <li>Interactive activities</li>
+                        <li>Children's games</li>
+                        <li>Face painting</li>
+                        <li>Demonstrations</li>
+                        <li>Workshops</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Requirements Section -->
+    <section class="requirements-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Stallholder Information</h2>
+                <p class="section-subtitle">What You Need to Know</p>
+            </div>
+            <div class="requirements-content">
+                <h3>Requirements & Guidelines</h3>
+                <ul>
+                    <li>All stalls must be setup and ready before 2:00 PM (festival opening time)</li>
+                    <li>Stalls must remain operational for the entire festival duration (2 PM - 8 PM)</li>
+                    <li>Food vendors must have current food safety certifications and licenses</li>
+                    <li>Public liability insurance is required for all stallholders</li>
+                    <li>Stallholders must provide their own tables, chairs, and display equipment</li>
+                    <li>All products must comply with Australian consumer law and safety standards</li>
+                    <li>Stallholders are responsible for their own waste management and site cleanup</li>
+                </ul>
+
+                <div class="info-box">
+                    <p><strong>Power & Water:</strong> Limited power points are available on a first-come, first-served basis. Please indicate your requirements when applying. Water access is available in designated areas.</p>
+                </div>
+
+                <h3>Application Process</h3>
+                <ul>
+                    <li>Complete the stallholder application form (available closer to the event)</li>
+                    <li>Provide required documentation (insurance, licenses if applicable)</li>
+                    <li>Submit payment with your application</li>
+                    <li>Receive confirmation and site allocation details</li>
+                    <li>Attend the pre-festival briefing (optional but recommended)</li>
+                </ul>
+
+                <div class="warning-box">
+                    <p><strong>Important:</strong> Stall spaces are limited and allocated on a first-come, first-served basis. Early application is strongly recommended. Applications typically open 3-4 months before the festival date.</p>
+                </div>
+
+                <h3>What's Included</h3>
+                <ul>
+                    <li>Designated stall space (size varies by stall type)</li>
+                    <li>Inclusion in festival marketing materials</li>
+                    <li>Access to facilities and amenities</li>
+                    <li>Support from festival volunteers and coordinators</li>
+                    <li>Opportunity to showcase to thousands of visitors</li>
+                </ul>
+
+                <div class="info-box">
+                    <p><strong>Community Group Discounts:</strong> Registered not-for-profit community groups and charities may be eligible for reduced stall fees. Please inquire when applying.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Apply Section -->
+    <section class="apply-section">
+        <div class="container">
+            <h2>Ready to Join Us?</h2>
+            <p>Applications for Sherwood Community Festival 2025 will open soon. Get in touch to express your interest and be notified when applications open.</p>
+            <a href="contact.html" class="btn btn-primary">Express Your Interest</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Sherwood Community Festival</h4>
+                    <p>A not-for-profit, community-driven celebration of local culture, creativity, and connection.</p>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/sherwoodcommunityfestival/" target="_blank" aria-label="Facebook">📘</a>
+                        <a href="mailto:secretary@sherwoodfestival.com.au" aria-label="Email">📧</a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="entertainment.html">Entertainment</a></li>
+                        <li><a href="stalls.html">Stallholders</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Get Involved</h4>
+                    <ul class="footer-links">
+                        <li><a href="contact.html">Volunteer</a></li>
+                        <li><a href="stalls.html">Become a Stallholder</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul class="footer-contact">
+                        <li>📧 secretary@sherwoodfestival.com.au</li>
+                        <li>📱 0450 096 999</li>
+                        <li>📮 PO Box 224, Sherwood, QLD 4075</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Sherwood Community Festival. All rights reserved. | A volunteer-run, not-for-profit community event.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
