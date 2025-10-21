@@ -7,15 +7,15 @@ export default class BoundaryTester {
         this.startPoint = null;
         this.measureLine = null;
         this.measureLabel = null;
-        
+
         this.init();
     }
-    
+
     init() {
         this.createDebugPanel();
         this.setupEventListeners();
     }
-    
+
     createDebugPanel() {
         const debugPanelContainer = document.createElement('div');
         debugPanelContainer.className = 'debug-panel-container'; // Use a container for better styling if needed
@@ -42,7 +42,7 @@ export default class BoundaryTester {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(debugPanelContainer);
 
         // Add debug button to the panel
@@ -53,7 +53,7 @@ export default class BoundaryTester {
                 Debug Boundaries
             </button>
         `;
-        
+
         const existingPanelContent = debugPanelContainer.querySelector('div[style*="position: fixed"]');
         if (existingPanelContent) {
             existingPanelContent.appendChild(debugButtonContainer);
@@ -62,20 +62,20 @@ export default class BoundaryTester {
             debugPanelContainer.appendChild(debugButtonContainer);
         }
     }
-    
+
     setupEventListeners() {
         document.getElementById('show-boundaries').addEventListener('change', (e) => {
             this.toggleBoundaries(e.target.checked);
         });
-        
+
         document.getElementById('show-components').addEventListener('change', (e) => {
             this.toggleComponents(e.target.checked);
         });
-        
+
         document.getElementById('measurement-mode').addEventListener('change', (e) => {
             this.toggleMeasurementMode(e.target.checked);
         });
-        
+
         document.getElementById('create-test-frames').addEventListener('click', () => {
             this.createTestFrames();
         });
@@ -90,12 +90,12 @@ export default class BoundaryTester {
     }
 
     debugBoundaries() {
-        console.log("%c==== BOUNDARY DEBUG INFORMATION ====", "background: #ffcc00; color: black; font-size: 14px;");
-        
+        console.log('%c==== BOUNDARY DEBUG INFORMATION ====', 'background: #ffcc00; color: black; font-size: 14px;');
+
         // Get all frames from WallArtPlanner
         const allFrames = this.wallArtPlanner.getAllFrameObjects();
         console.log(`Total frames: ${allFrames.length}`);
-        
+
         // Log frame details
         allFrames.forEach((frame, index) => {
             console.log(`Frame ${index + 1}:`, {
@@ -109,35 +109,35 @@ export default class BoundaryTester {
                 }
             });
         });
-        
+
         // Calculate boundary
         if (allFrames.length > 0) {
             const minX = Math.min(...allFrames.map(f => f.x));
             const maxX = Math.max(...allFrames.map(f => f.x + f.width));
             const minY = Math.min(...allFrames.map(f => f.y));
             const maxY = Math.max(...allFrames.map(f => f.y + f.height));
-            
-            console.log("Calculated boundary:", {
+
+            console.log('Calculated boundary:', {
                 minX, maxX, minY, maxY,
                 width: maxX - minX,
                 height: maxY - minY
             });
         }
-        
+
         // Check for visual vs. data mismatches by comparing DOM positions
         if (allFrames.length > 0) {
-            console.log("%c==== VISUAL VS DATA COMPARISON ====", "background: #ff9900; color: black; font-size: 14px;");
-            
+            console.log('%c==== VISUAL VS DATA COMPARISON ====', 'background: #ff9900; color: black; font-size: 14px;');
+
             allFrames.forEach((frame, index) => {
                 if (frame.element) {
                     const rect = frame.element.getBoundingClientRect();
                     const computedStyle = window.getComputedStyle(frame.element);
                     const transform = computedStyle.transform;
-                    
+
                     console.log(`Frame ${index + 1} (ID: ${frame.id}):`, {
                         dataPosition: { x: frame.x, y: frame.y },
-                        visualPosition: { 
-                            left: rect.left, 
+                        visualPosition: {
+                            left: rect.left,
                             top: rect.top,
                             transform
                         },
@@ -148,12 +148,12 @@ export default class BoundaryTester {
             });
         }
     }
-    
+
     toggleBoundaries(show) {
         document.querySelectorAll('.frame').forEach(frameEl => {
             const frameId = frameEl.dataset.id;
             const frame = this.getFrameById(frameId);
-            
+
             if (frame) {
                 if (show) {
                     if (!frameEl.querySelector('.frame-boundary-indicator')) {
@@ -161,34 +161,38 @@ export default class BoundaryTester {
                     }
                 } else {
                     const indicator = frameEl.querySelector('.frame-boundary-indicator');
-                    if (indicator) indicator.remove();
+                    if (indicator) {
+                        indicator.remove();
+                    }
                 }
             }
         });
     }
-    
+
     toggleComponents(show) {
         document.querySelectorAll('.frame').forEach(frameEl => {
             const frameId = frameEl.dataset.id;
             const frame = this.getFrameById(frameId);
-            
+
             if (frame) {
                 if (show) {
                     if (!frameEl.querySelector('.component-indicators')) {
                         frame.addComponentIndicators();
                     }
                 } else {
-                     const indicator = frameEl.querySelector('.component-indicators');
-                    if (indicator) indicator.remove();
+                    const indicator = frameEl.querySelector('.component-indicators');
+                    if (indicator) {
+                        indicator.remove();
+                    }
                 }
             }
         });
     }
-    
+
     toggleMeasurementMode(enable) {
         this.measurementMode = enable;
         const wall = document.querySelector('.wall-canvas');
-        
+
         if (enable) {
             wall.addEventListener('mousedown', this.startMeasurementHandler = this.startMeasurement.bind(this));
             document.addEventListener('mousemove', this.updateMeasurementHandler = this.updateMeasurement.bind(this));
@@ -199,77 +203,87 @@ export default class BoundaryTester {
             document.removeEventListener('mousemove', this.updateMeasurementHandler);
             document.removeEventListener('mouseup', this.endMeasurementHandler);
             wall.style.cursor = 'default';
-            
+
             document.querySelectorAll('.measurement-line, .measurement-label').forEach(el => el.remove());
             this.measureLine = null; // Clear references
             this.measureLabel = null;
         }
     }
-    
+
     startMeasurement(e) {
-        if (!this.measurementMode || e.target.closest('.frame')) return; // Don't start if clicking on a frame
-        
+        if (!this.measurementMode || e.target.closest('.frame')) {
+            return;
+        } // Don't start if clicking on a frame
+
         const wall = document.querySelector('.wall-canvas');
         const rect = wall.getBoundingClientRect();
-        
+
         this.startPoint = {
             x: (e.clientX - rect.left) / SCALE,
             y: (e.clientY - rect.top) / SCALE
         };
-        
-        if (this.measureLine) this.measureLine.remove();
-        if (this.measureLabel) this.measureLabel.remove();
-        
+
+        if (this.measureLine) {
+            this.measureLine.remove();
+        }
+        if (this.measureLabel) {
+            this.measureLabel.remove();
+        }
+
         this.measureLine = document.createElement('div');
         this.measureLine.className = 'measurement-line';
         Object.assign(this.measureLine.style, {
             position: 'absolute', background: 'red', height: '2px',
             transformOrigin: 'left center', zIndex: '10000', pointerEvents: 'none'
         });
-        
+
         this.measureLabel = document.createElement('div');
         this.measureLabel.className = 'measurement-label';
         Object.assign(this.measureLabel.style, {
             position: 'absolute', background: 'white', border: '1px solid black',
             padding: '2px 5px', zIndex: '10001', fontSize: '12px', pointerEvents: 'none'
         });
-        
+
         wall.appendChild(this.measureLine);
         wall.appendChild(this.measureLabel);
     }
-    
+
     updateMeasurement(e) {
-        if (!this.measurementMode || !this.startPoint || !this.measureLine) return;
-        
+        if (!this.measurementMode || !this.startPoint || !this.measureLine) {
+            return;
+        }
+
         const wall = document.querySelector('.wall-canvas');
         const rect = wall.getBoundingClientRect();
-        
+
         const endPoint = {
             x: (e.clientX - rect.left) / SCALE,
             y: (e.clientY - rect.top) / SCALE
         };
-        
+
         const dx = endPoint.x - this.startPoint.x;
         const dy = endPoint.y - this.startPoint.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-        
+
         this.measureLine.style.width = `${distance * SCALE}px`;
         this.measureLine.style.transform = `rotate(${angle}deg)`;
         this.measureLine.style.left = `${this.startPoint.x * SCALE}px`;
         this.measureLine.style.top = `${this.startPoint.y * SCALE}px`;
-        
+
         this.measureLabel.textContent = `${distance.toFixed(2)}"`;
         this.measureLabel.style.left = `${(this.startPoint.x + dx / 2) * SCALE + 5}px`;
         this.measureLabel.style.top = `${(this.startPoint.y + dy / 2) * SCALE - 20}px`;
     }
-    
+
     endMeasurement() {
-        if (!this.measurementMode) return;
+        if (!this.measurementMode) {
+            return;
+        }
         // Keep the last measurement visible until a new one starts or mode is toggled off
-        // this.startPoint = null; 
+        // this.startPoint = null;
     }
-    
+
     getFrameById(frameId) {
         for (const collection of this.wallArtPlanner.collections) {
             for (const frame of collection.frames) {
@@ -280,16 +294,16 @@ export default class BoundaryTester {
         }
         return null;
     }
-    
+
     createTestFrames() {
         const testCases = [
-            { name: "Standard", printWidth: 8, printHeight: 10, mattWidthCm: 2 * 2.54, frameWidth: 1, position: { x: 5, y: 5 }, frameMaterial: 'black' },
-            { name: "Small", printWidth: 1, printHeight: 1, mattWidthCm: 0.5 * 2.54, frameWidth: 0.25, position: { x: 25, y: 5 }, frameMaterial: 'white' },
-            { name: "Large", printWidth: 24, printHeight: 36, mattWidthCm: 3 * 2.54, frameWidth: 2, position: { x: 5, y: 25 }, frameMaterial: 'oak' },
-            { name: "Metric Mat", printWidth: 10, printHeight: 15, mattWidthCm: 2.5, frameWidth: 0.8, position: { x: 45, y: 25 }, frameMaterial: 'walnut' }
+            { name: 'Standard', printWidth: 8, printHeight: 10, mattWidthCm: 2 * 2.54, frameWidth: 1, position: { x: 5, y: 5 }, frameMaterial: 'black' },
+            { name: 'Small', printWidth: 1, printHeight: 1, mattWidthCm: 0.5 * 2.54, frameWidth: 0.25, position: { x: 25, y: 5 }, frameMaterial: 'white' },
+            { name: 'Large', printWidth: 24, printHeight: 36, mattWidthCm: 3 * 2.54, frameWidth: 2, position: { x: 5, y: 25 }, frameMaterial: 'oak' },
+            { name: 'Metric Mat', printWidth: 10, printHeight: 15, mattWidthCm: 2.5, frameWidth: 0.8, position: { x: 45, y: 25 }, frameMaterial: 'walnut' }
         ];
-        
-        if (confirm("This will clear the current layout and create test frames. Continue?")) {
+
+        if (confirm('This will clear the current layout and create test frames. Continue?')) {
             this.wallArtPlanner.clearAll(); // This should also clear existing test labels if they are children of wallCanvas
             document.querySelectorAll('.test-frame-label').forEach(el => el.remove()); // Explicitly clear old labels
 
@@ -306,10 +320,10 @@ export default class BoundaryTester {
                     color: this.getRandomTestColor(index), // For print area, not frame itself
                     frameMaterial: testCase.frameMaterial // For the frame material
                 };
-                
+
                 // Call the planner's addCollection. It will use the `this.newCollection` we just set.
                 // WallArtPlanner.addCollection() returns the created Collection instance.
-                const createdPlannerCollection = this.wallArtPlanner.addCollection(); 
+                const createdPlannerCollection = this.wallArtPlanner.addCollection();
 
                 if (createdPlannerCollection && createdPlannerCollection.frames.length > 0) {
                     const frame = createdPlannerCollection.frames[0]; // Get the actual Frame instance
@@ -318,7 +332,7 @@ export default class BoundaryTester {
                     frame.updatePosition(); // This ensures its position is set and events are dispatched
                     this.addTestLabelForFrame(frame, testCase.name);
                 } else {
-                    console.error("Failed to create collection or frame for test case:", testCase);
+                    console.error('Failed to create collection or frame for test case:', testCase);
                 }
             });
 
@@ -354,7 +368,7 @@ export default class BoundaryTester {
         });
         wall.appendChild(labelElement);
     }
-    
+
     getRandomTestColor(index) {
         const colors = ['#E74C3C', '#2ECC71', '#3498DB', '#F1C40F', '#9B59B6'];
         return colors[index % colors.length];

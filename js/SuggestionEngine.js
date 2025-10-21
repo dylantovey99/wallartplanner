@@ -10,13 +10,13 @@ export default class SuggestionEngine {
         this.customRatioHeight = document.getElementById('customRatioHeight');
         this.suggestionResult = document.getElementById('suggestionResult');
         this.getSuggestionButton = document.getElementById('getSuggestion');
-        
+
         this.setupEventListeners();
     }
 
     setupEventListeners() {
         this.aspectRatioSelect.addEventListener('change', () => {
-            this.customRatioDiv.classList.toggle('hidden', 
+            this.customRatioDiv.classList.toggle('hidden',
                 this.aspectRatioSelect.value !== 'custom');
         });
 
@@ -71,10 +71,10 @@ export default class SuggestionEngine {
 
         // Calculate suggested dimensions
         const { printWidth, printHeight } = this.calculateDimensions(
-            layoutWidth, 
-            layoutHeight, 
-            adjustedAspectRatio, 
-            mattWidth, 
+            layoutWidth,
+            layoutHeight,
+            adjustedAspectRatio,
+            mattWidth,
             avgFrameWidth
         );
 
@@ -141,13 +141,13 @@ export default class SuggestionEngine {
         this.suggestionResult.classList.remove('hidden');
         this.suggestionResult.style.display = 'block';
 
-        this.suggestionResult.querySelector('.print-size').textContent = 
+        this.suggestionResult.querySelector('.print-size').textContent =
             `${formatMeasurement(suggestion.printWidth)} × ${formatMeasurement(suggestion.printHeight)}`;
         this.suggestionResult.querySelector('.matt-width').textContent =
             `${(suggestion.mattWidth * 2.54).toFixed(1)}cm`;
-        this.suggestionResult.querySelector('.frame-width').textContent = 
+        this.suggestionResult.querySelector('.frame-width').textContent =
             `${Math.round(suggestion.frameWidth * 25.4)}mm (${formatMeasurement(suggestion.frameWidth)})`;
-        this.suggestionResult.querySelector('.total-size').textContent = 
+        this.suggestionResult.querySelector('.total-size').textContent =
             `${formatMeasurement(totalWidth)} × ${formatMeasurement(totalHeight)}`;
     }
 

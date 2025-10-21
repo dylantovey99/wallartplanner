@@ -1,4 +1,6 @@
-class StateManager {
+import Collection from './Collection.js';
+
+export default class StateManager {
     constructor(wallDimensionsManager) {
         this.wallDimensionsManager = wallDimensionsManager;
         this.collections = [];
@@ -19,7 +21,9 @@ class StateManager {
 
     loadState(wallCanvas, collectionsLegend) {
         const savedState = localStorage.getItem('wallArtPlannerState');
-        if (!savedState) return;
+        if (!savedState) {
+            return;
+        }
 
         try {
             const state = JSON.parse(savedState);
@@ -53,12 +57,12 @@ class StateManager {
         if (state.collections) {
             state.collections.forEach(collectionData => {
                 const collection = new Collection(
-                    collectionData, 
+                    collectionData,
                     this.wallDimensionsManager.getDimensions()
                 );
                 collection.addToWall(wallCanvas);
                 collectionsLegend.appendChild(collection.element);
-                
+
                 collection.element.addEventListener('collectionEmpty', () => {
                     this.handleCollectionEmpty(collection);
                 });
@@ -69,7 +73,7 @@ class StateManager {
                         frame.dragManager.setMinDistance(this.currentFrameSpacing);
                     }
                 });
-                
+
                 this.collections.push(collection);
             });
         }
@@ -87,7 +91,7 @@ class StateManager {
     addCollection(collection, wallCanvas, collectionsLegend) {
         collection.addToWall(wallCanvas);
         collectionsLegend.appendChild(collection.element);
-        
+
         collection.element.addEventListener('collectionEmpty', () => {
             this.handleCollectionEmpty(collection);
         });
@@ -98,7 +102,7 @@ class StateManager {
                 frame.dragManager.setMinDistance(this.currentFrameSpacing);
             }
         });
-        
+
         this.collections.push(collection);
         this.saveState();
     }
@@ -134,7 +138,7 @@ class StateManager {
     }
 
     getAllFrames() {
-        return this.collections.flatMap(collection => 
+        return this.collections.flatMap(collection =>
             collection.frames.map(frame => ({
                 x: frame.x,
                 y: frame.y,

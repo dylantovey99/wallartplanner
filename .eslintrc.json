@@ -42,5 +42,21 @@
   "globals": {
     "html2canvas": "readonly",
     "AWS": "readonly"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["*.config.js", "tests/**/*.js"],
+      "env": {
+        "node": true
+      },
+      "globals": {
+        "describe": "readonly",
+        "test": "readonly",
+        "expect": "readonly",
+        "beforeEach": "readonly",
+        "afterEach": "readonly",
+        "vi": "readonly"
+      }
+    }
+  ]
 }

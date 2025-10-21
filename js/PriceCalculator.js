@@ -140,7 +140,7 @@ function calculateFrameAndPrintPrice(width_cm, length_cm, mat_size_cm, frame_typ
     printCost = round(printCost * PRICING.PRINT_MARKUP, 2);
 
     // Calculate total with fees
-    let totalPrice = round(
+    const totalPrice = round(
         frameCost + printCost + PRICING.BASE_FEE + PRICING.ADDITIONAL_FEE,
         2
     );
@@ -160,8 +160,12 @@ function calculateFrameAndPrintPrice(width_cm, length_cm, mat_size_cm, frame_typ
 function getFrameType(frameWidthInches) {
     // Convert inches to mm and match to nearest standard size
     const mm = frameWidthInches * 25.4;
-    if (mm <= 25) return '20';
-    if (mm <= 35) return '30';
+    if (mm <= 25) {
+        return '20';
+    }
+    if (mm <= 35) {
+        return '30';
+    }
     return '40';
 }
 
@@ -228,7 +232,7 @@ class PriceCalculator {
 
     formatPriceResults(results) {
         let html = '<div class="price-summary">';
-        
+
         // Group results by collection
         const byCollection = results.reduce((acc, result) => {
             if (!acc[result.collectionId]) {
@@ -244,7 +248,7 @@ class PriceCalculator {
         // Generate HTML for each collection
         Object.entries(byCollection).forEach(([collectionId, frames]) => {
             const collectionTotal = frames.reduce((sum, frame) => sum + frame.prices.total, 0);
-            
+
             html += `
                 <div class="collection-price">
                     <h3>Collection ${collectionId}</h3>

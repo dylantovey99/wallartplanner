@@ -18,9 +18,9 @@ export default class FrameDragManager {
         this.handleTouchMove = this.handleTouchMove.bind(this);
         this.handleTouchEnd = this.handleTouchEnd.bind(this);
 
-        console.log(`FrameDragManager initialized for frame ${this.frame.id}`, `Planner:`, planner);
+        console.log(`FrameDragManager initialized for frame ${this.frame.id}`, 'Planner:', planner);
     }
-    
+
     isWithinBounds(x, y, width, height) {
         const maxX = this.wallDimensions.width - width;
         const maxY = this.wallDimensions.height - height;
@@ -44,7 +44,7 @@ export default class FrameDragManager {
         };
         this.originalPosition = { x: this.frame.x, y: this.frame.y }; // Store position at drag start
 
-        console.log(`Frame ${this.frame.id} drag started at:`, this.dragStart, `Original pos:`, this.originalPosition);
+        console.log(`Frame ${this.frame.id} drag started at:`, this.dragStart, 'Original pos:', this.originalPosition);
 
         this.frame.element.classList.add('dragging');
 
@@ -57,15 +57,23 @@ export default class FrameDragManager {
     }
 
     handleMouseDown(e) {
-        if (e.button !== 0) return; // Only handle left mouse button
-        if (e.target.closest('.frame-controls')) return;
+        if (e.button !== 0) {
+            return;
+        } // Only handle left mouse button
+        if (e.target.closest('.frame-controls')) {
+            return;
+        }
         e.preventDefault(); // Prevent default text selection, etc.
         this._startDrag(e.clientX, e.clientY);
     }
 
     handleTouchStart(e) {
-        if (e.touches.length !== 1) return; // Only handle single touch
-        if (e.target.closest('.frame-controls')) return;
+        if (e.touches.length !== 1) {
+            return;
+        } // Only handle single touch
+        if (e.target.closest('.frame-controls')) {
+            return;
+        }
         e.preventDefault(); // Crucial to prevent scrolling/zooming on touch devices
         const touch = e.touches[0];
         this._startDrag(touch.clientX, touch.clientY);
@@ -82,9 +90,13 @@ export default class FrameDragManager {
     }
 
     highlightCollision(currentFrameEl, otherFrameEl) {
-        if (currentFrameEl) currentFrameEl.classList.add('frame-collision-blocked');
-        if (otherFrameEl) otherFrameEl.classList.add('frame-collision-blocked');
-        
+        if (currentFrameEl) {
+            currentFrameEl.classList.add('frame-collision-blocked');
+        }
+        if (otherFrameEl) {
+            otherFrameEl.classList.add('frame-collision-blocked');
+        }
+
         // Optional: Clear after a short delay if you want the highlight to be temporary
         // setTimeout(() => this.clearCollisionHighlights(currentFrameEl, otherFrameEl), 500);
     }
@@ -103,7 +115,7 @@ export default class FrameDragManager {
             });
         }
     }
-    
+
     checkCollision(x, y, currentFrameId, otherFrames) {
         let collidingFrame = null;
         let minPushX = 0;
@@ -111,7 +123,9 @@ export default class FrameDragManager {
         let hasCollision = false;
 
         for (const otherFrame of otherFrames) {
-            if (otherFrame.id === currentFrameId) continue;
+            if (otherFrame.id === currentFrameId) {
+                continue;
+            }
 
             const dx = (x + this.frame.width / 2) - (otherFrame.x + otherFrame.width / 2);
             const dy = (y + this.frame.height / 2) - (otherFrame.y + otherFrame.height / 2);
@@ -125,7 +139,7 @@ export default class FrameDragManager {
 
                 const overlapX = combinedHalfWidths - Math.abs(dx);
                 const overlapY = combinedHalfHeights - Math.abs(dy);
-                
+
                 let pushX = 0;
                 let pushY = 0;
 
@@ -138,16 +152,20 @@ export default class FrameDragManager {
                 } else { // Equal overlap, or one is zero (e.g. corner touch)
                     // If overlaps are equal, push on both. If one is near zero, prioritize the other.
                     // This can be refined, but for now, let's push on the one that's not zero, or both if equal.
-                    if (Math.abs(overlapX) > EPSILON) pushX = (dx > 0 ? overlapX : -overlapX);
-                    if (Math.abs(overlapY) > EPSILON) pushY = (dy > 0 ? overlapY : -overlapY);
+                    if (Math.abs(overlapX) > EPSILON) {
+                        pushX = (dx > 0 ? overlapX : -overlapX);
+                    }
+                    if (Math.abs(overlapY) > EPSILON) {
+                        pushY = (dy > 0 ? overlapY : -overlapY);
+                    }
                 }
-                
+
                 // Accumulate minimum push if multiple collisions (though we usually handle one at a time)
                 // For simplicity, we'll focus on the first detected collision's push for now.
                 // A more robust system might find the "best" push among all collisions.
-                minPushX = pushX; 
+                minPushX = pushX;
                 minPushY = pushY;
-                
+
                 // console.log(`Frame ${this.frame.id} collision with ${otherFrame.id}. OverlapX: ${overlapX.toFixed(2)}, OverlapY: ${overlapY.toFixed(2)}. Push: X=${pushX.toFixed(2)}, Y=${pushY.toFixed(2)}`);
                 break; // Handle one collision at a time for now
             }
@@ -157,24 +175,26 @@ export default class FrameDragManager {
 
 
     _moveFrame(clientX, clientY) {
-        if (!this.isDragging) return;
+        if (!this.isDragging) {
+            return;
+        }
         this.clearCollisionHighlights(); // Clear previous highlights
 
         const wall = document.querySelector('.wall-canvas'); // TODO: Cache this if possible
         if (!wall) {
-            console.error("Wall canvas element not found in _moveFrame.");
+            console.error('Wall canvas element not found in _moveFrame.');
             return;
         }
         const wallRect = wall.getBoundingClientRect();
 
-        let newX = (clientX - wallRect.left - this.dragStart.x) / SCALE;
-        let newY = (clientY - wallRect.top - this.dragStart.y) / SCALE;
-        
+        const newX = (clientX - wallRect.left - this.dragStart.x) / SCALE;
+        const newY = (clientY - wallRect.top - this.dragStart.y) / SCALE;
+
         console.log(`FDM _moveFrame (Frame ${this.frame.id}): Raw newX=${newX.toFixed(2)}, newY=${newY.toFixed(2)}`);
 
         let snappedX = this.snapToGrid(newX);
         let snappedY = this.snapToGrid(newY);
-        
+
         console.log(`FDM _moveFrame (Frame ${this.frame.id}): Snapped snappedX=${snappedX.toFixed(2)}, snappedY=${snappedY.toFixed(2)}`);
 
         // Initial boundary check for the snapped position
@@ -189,11 +209,11 @@ export default class FrameDragManager {
             snappedY = this.snapToGrid(snappedY);
             console.log(`FDM _moveFrame (Frame ${this.frame.id}): Clamped and re-snapped: snappedX=${snappedX.toFixed(2)}, snappedY=${snappedY.toFixed(2)}`);
         }
-        
+
         // Get other frames using planner's live data
         const otherFrames = this.planner ? this.planner.getAllFrameObjects().filter(f => f.id !== String(this.frame.id)) : [];
         const collisionResult = this.checkCollision(snappedX, snappedY, String(this.frame.id), otherFrames);
-        
+
         console.log(`FDM _moveFrame (Frame ${this.frame.id}): Collision check with (snappedX=${snappedX.toFixed(2)}, snappedY=${snappedY.toFixed(2)}). Result: collides=${collisionResult.collides}, pushX=${collisionResult.pushX.toFixed(2)}, pushY=${collisionResult.pushY.toFixed(2)}`);
 
         if (collisionResult.collides) {
@@ -238,7 +258,7 @@ export default class FrameDragManager {
             this.frame.x = snappedX;
             this.frame.y = snappedY;
         }
-        
+
         console.log(`FDM _moveFrame (Frame ${this.frame.id}): Final frame pos before updatePosition: x=${this.frame.x.toFixed(2)}, y=${this.frame.y.toFixed(2)}`);
         this.frame.updatePosition();
         this.originalPosition = { x: this.frame.x, y: this.frame.y }; // Update original for next interval
@@ -252,7 +272,9 @@ export default class FrameDragManager {
     }
 
     handleTouchMove(e) {
-        if (e.touches.length !== 1) return; // Only handle single touch
+        if (e.touches.length !== 1) {
+            return;
+        } // Only handle single touch
         e.preventDefault(); // Prevent scrolling during drag
         const touch = e.touches[0];
         // Store current mouse/touch position for the next interval's originalPosition
@@ -275,7 +297,7 @@ export default class FrameDragManager {
             // Final snap, though _moveFrame should keep it snapped
             const finalX = this.snapToGrid(this.frame.x);
             const finalY = this.snapToGrid(this.frame.y);
-            
+
             if (Math.abs(finalX - this.frame.x) > EPSILON || Math.abs(finalY - this.frame.y) > EPSILON) {
                 // console.log(`Frame ${this.frame.id} snapping to final position on drag end:`, {
                 //     x: finalX.toFixed(2),
@@ -317,13 +339,13 @@ export default class FrameDragManager {
         } else {
             this.gridSize = newGridSize;
         }
-        
+
         // console.log(`Frame ${this.frame.id} grid size changing from ${prevGridSize} to ${this.gridSize} (input was ${size})`);
-        
+
         if (this.frame) { // Snap current position to new grid if gridSize is not 0
             const snappedX = this.snapToGrid(this.frame.x);
             const snappedY = this.snapToGrid(this.frame.y);
-            
+
             if (Math.abs(snappedX - this.frame.x) > EPSILON || Math.abs(snappedY - this.frame.y) > EPSILON) {
                 // console.log(`Frame ${this.frame.id} snapping to new grid:`, {
                 //     x: snappedX.toFixed(2),
@@ -335,12 +357,12 @@ export default class FrameDragManager {
             }
         }
     }
-    
+
     setMinDistance(distance) {
         const prevMinDistance = this.minDistance;
         const newDist = Number(distance);
         // Ensure minDistance is always positive. If input results in 0, NaN, or negative, default to 1.
-        this.minDistance = (newDist > 0) ? newDist : 1; 
+        this.minDistance = (newDist > 0) ? newDist : 1;
         console.log(`Frame ${this.frame.id} minimum distance changing from ${prevMinDistance} to ${this.minDistance} (input was ${distance}, processed to ${newDist})`);
     }
 }

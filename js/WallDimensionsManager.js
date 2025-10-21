@@ -1,4 +1,6 @@
-class WallDimensionsManager {
+import { formatMeasurement } from './utils.js';
+
+export default class WallDimensionsManager {
     constructor(wall) {
         this.wall = wall;
         this.wallCanvas = document.getElementById('wallCanvas');
@@ -6,7 +8,7 @@ class WallDimensionsManager {
         this.wallHeightInput = document.getElementById('wallHeight');
         this.wallWidthDisplay = document.querySelector('.wall-width-display');
         this.wallHeightDisplay = document.querySelector('.wall-height-display');
-        
+
         this.setupEventListeners();
         this.updateDisplay();
     }
@@ -33,7 +35,7 @@ class WallDimensionsManager {
         this.wallHeightInput.value = this.wall.height;
         this.wallWidthDisplay.textContent = `${formatMeasurement(this.wall.width)}`;
         this.wallHeightDisplay.textContent = `Height: ${formatMeasurement(this.wall.height)}`;
-        
+
         // The actual visual scaling of frames will happen relative to the
         // wallCanvas's current dimensions, which are determined by CSS and its container.
         // The SCALE constant in utils.js is used by Frame.js to draw frames

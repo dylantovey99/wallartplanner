@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hideIconsCheckbox = document.getElementById('hideIcons');
     const hideAllCheckbox = document.getElementById('hideAll');
     const wallCanvas = document.getElementById('wallCanvas');
-    
+
     if (hideIconsCheckbox && wallCanvas) {
         hideIconsCheckbox.addEventListener('change', (e) => {
             if (e.target.checked) {
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
+
     if (hideAllCheckbox && wallCanvas) {
         hideAllCheckbox.addEventListener('change', (e) => {
             if (e.target.checked) {
@@ -48,8 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Core elements required for WallArtPlanner to instantiate
     const corePlannerElements = [
-        'wallCanvas', 'wallWidth', 'wallHeight', 
-        'printWidth', 'printHeight', 'mattWidth', 'frameWidth', 'frameCount', 
+        'wallCanvas', 'wallWidth', 'wallHeight',
+        'printWidth', 'printHeight', 'mattWidth', 'frameWidth', 'frameCount',
         'addCollection', 'collectionsLegend'
         // Note: frameMaterialSelect is also used in WallArtPlanner constructor but might not be on all pages.
         // The constructor has checks for these elements.
@@ -82,9 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         const onPlannerPage = window.location.pathname.endsWith('/') || window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('boundary-test.html');
         if (onPlannerPage) {
-            console.error("WallArtPlanner NOT initialized: Essential DOM elements (wallCanvas, wallWidth) are missing on a planner page.");
+            console.error('WallArtPlanner NOT initialized: Essential DOM elements (wallCanvas, wallWidth) are missing on a planner page.');
         } else {
-            console.warn("WallArtPlanner not initialized: Essential DOM elements (wallCanvas, wallWidth) are missing. This might be expected on non-planner pages.");
+            console.warn('WallArtPlanner not initialized: Essential DOM elements (wallCanvas, wallWidth) are missing. This might be expected on non-planner pages.');
         }
     }
 
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         // Don't log error if not on planner page, as it might be optional
         if (isPlannerContext) { // Only warn if we are in a planner context but button is missing
-             console.warn("SuggestionEngine not initialized: 'getSuggestion' button is missing, though planner context is active.");
+            console.warn("SuggestionEngine not initialized: 'getSuggestion' button is missing, though planner context is active.");
         }
     }
 
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (collection.frames) {
                             collection.frames.forEach(frame => {
                                 detailedFrames.push({
-                                    x: frame.x, y: frame.y, 
+                                    x: frame.x, y: frame.y,
                                     width: frame.width, height: frame.height, // Overall dimensions in inches
                                     printWidth: frame.printWidth, // Inches
                                     printHeight: frame.printHeight, // Inches
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (detailedFrames.length === 0) {
-                    alert("Please add some frames to the wall first to get a suggestion.");
+                    alert('Please add some frames to the wall first to get a suggestion.');
                     return;
                 }
                 const suggestion = window.suggestionEngine.calculateSuggestion(detailedFrames);
@@ -162,7 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error calculating suggestion:', error);
                 alert('Error calculating suggestion: ' + error.message);
-                if(window.suggestionEngine) window.suggestionEngine.hideSuggestionUI();
+                if (window.suggestionEngine) {
+                    window.suggestionEngine.hideSuggestionUI();
+                }
             }
         });
     }
@@ -183,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const frameWidthText = document.querySelector('.suggestion-result .frame-width')?.textContent; // e.g., "20mm (0.79")"
 
                 if (!printSizeText || !mattWidthText || !frameWidthText) {
-                    alert("Could not read suggestion values from the UI.");
+                    alert('Could not read suggestion values from the UI.');
                     return;
                 }
 
@@ -192,11 +194,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 const frameWidthMmMatch = frameWidthText.match(/(\d+)mm/);
                 const frameWidthMm = frameWidthMmMatch ? parseInt(frameWidthMmMatch[1]) : 20;
 
-                if(printWidthInput) printWidthInput.value = printDimensions[0].toFixed(1);
-                if(printHeightInput) printHeightInput.value = printDimensions[1].toFixed(1);
-                if(mattWidthInput) mattWidthInput.value = mattWidthCm.toFixed(1); // Matt width is CM
-                if(frameWidthSelect) frameWidthSelect.value = String(frameWidthMm); // Frame width is MM string
-                if(frameCountInput) frameCountInput.value = "1"; // Default to 1 frame
+                if (printWidthInput) {
+                    printWidthInput.value = printDimensions[0].toFixed(1);
+                }
+                if (printHeightInput) {
+                    printHeightInput.value = printDimensions[1].toFixed(1);
+                }
+                if (mattWidthInput) {
+                    mattWidthInput.value = mattWidthCm.toFixed(1);
+                } // Matt width is CM
+                if (frameWidthSelect) {
+                    frameWidthSelect.value = String(frameWidthMm);
+                } // Frame width is MM string
+                if (frameCountInput) {
+                    frameCountInput.value = '1';
+                } // Default to 1 frame
 
                 // Trigger input and change events for WallArtPlanner to pick up new values
                 [printWidthInput, printHeightInput, mattWidthInput, frameWidthSelect, frameCountInput].forEach(input => {
@@ -205,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         input.dispatchEvent(new Event('change', { bubbles: true }));
                     }
                 });
-                
+
                 // Update WallArtPlanner's newCollection object directly as well, as input listeners might not cover all cases
                 if (window.planner) {
                     window.planner.newCollection.printWidth = printDimensions[0];
@@ -214,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.planner.newCollection.frameWidth = parseFloat((frameWidthMm / 25.4).toFixed(3)); // Convert MM to Inches for newCollection
                     window.planner.newCollection.count = 1;
                 }
-                
+
                 window.suggestionEngine.hideSuggestionUI();
             } catch (error) {
                 console.error('Error applying suggestion:', error);
@@ -251,7 +263,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.modal-close').forEach(closeBtn => {
         closeBtn.addEventListener('click', () => {
             const modal = closeBtn.closest('.modal');
-            if (modal) modal.style.display = 'none';
+            if (modal) {
+                modal.style.display = 'none';
+            }
         });
     });
 
@@ -266,12 +280,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to expand Add New Collection section
     const expandAddNewCollection = () => {
         const addNewCollectionSection = Array.from(document.querySelectorAll('.controls-section section h2'))
-                                        .find(h2 => h2.textContent.includes('Add New Collection'))
-                                        ?.closest('section');
+            .find(h2 => h2.textContent.includes('Add New Collection'))
+            ?.closest('section');
         if (addNewCollectionSection) {
             addNewCollectionSection.classList.remove('collapsed');
         }
     };
+
+    // Helper function for setting form values and dispatching events
+    function setValueAndDispatch(element, value) {
+        element.value = value;
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+        element.dispatchEvent(new Event('change', { bubbles: true }));
+    }
 
     // Check for stored frame data from calculators
     const newFrameDataString = localStorage.getItem('newFrameData');
@@ -279,29 +300,24 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const data = JSON.parse(newFrameDataString);
             console.log('Retrieved new frame data from calculator:', data);
-            
+
             const printWidthInput = document.getElementById('printWidth');
             const printHeightInput = document.getElementById('printHeight');
             const mattWidthInput = document.getElementById('mattWidth'); // Expects CM
             const frameWidthSelect = document.getElementById('frameWidth'); // Expects MM
             const frameCountInput = document.getElementById('frameCount');
-            
+
             if (printWidthInput && printHeightInput && mattWidthInput && frameWidthSelect && frameCountInput) {
-                function setValueAndDispatch(element, value) {
-                    element.value = value;
-                    element.dispatchEvent(new Event('input', { bubbles: true }));
-                    element.dispatchEvent(new Event('change', { bubbles: true }));
-                }
 
                 setValueAndDispatch(printWidthInput, data.printWidth.toFixed(1)); // printWidth from calc is in inches
                 setValueAndDispatch(printHeightInput, data.printHeight.toFixed(1)); // printHeight from calc is in inches
                 setValueAndDispatch(mattWidthInput, data.matWidth.toFixed(1)); // matWidth from calc is in CM
-                
+
                 // frameWidth from calculator is in INCHES. Convert to MM for the select dropdown.
                 const frameWidthInches = Number(data.frameWidth);
                 const frameWidthMM = Math.round(frameWidthInches * 25.4);
-                
-                let bestMatchValue = "20"; // Default if no options or match
+
+                let bestMatchValue = '20'; // Default if no options or match
                 const options = Array.from(frameWidthSelect.options);
                 if (options.length > 0) {
                     // Try exact match first
@@ -310,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         bestMatchValue = exactMatchOption.value;
                     } else {
                         // Find closest if no exact match
-                        bestMatchValue = options.reduce((prev, curr) => 
+                        bestMatchValue = options.reduce((prev, curr) =>
                             Math.abs(Number(curr.value) - frameWidthMM) < Math.abs(Number(prev.value) - frameWidthMM) ? curr : prev
                         ).value;
                     }
@@ -331,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('newFrameData');
                 // console.log('Successfully pre-filled form fields from calculator data.');
             } else {
-                 console.warn("Could not pre-fill from calculator data: one or more form elements for 'Add New Collection' are missing.");
+                console.warn("Could not pre-fill from calculator data: one or more form elements for 'Add New Collection' are missing.");
             }
         } catch (error) {
             console.error('Error parsing or applying new frame data from calculator:', error);
@@ -344,11 +360,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const screenshotButton = document.getElementById('screenshotBtn');
     // wallCanvasElement is already defined as wallCanvasForInit if planner is initialized
 
-    if (screenshotButton && wallCanvasForInit && typeof html2canvas === 'function') { 
+    if (screenshotButton && wallCanvasForInit && typeof html2canvas === 'function') {
         screenshotButton.addEventListener('click', () => {
             // console.log('Screenshot button clicked');
             const elementsToHideTemporarily = [];
-            
+
             function hideElement(selector) {
                 const el = document.querySelector(selector);
                 if (el) {
@@ -368,11 +384,11 @@ document.addEventListener('DOMContentLoaded', () => {
             hideElements('.frame-dimensions');
             // hideElements('.distance-indicators'); // These might be desired in some screenshots
             // hideElements('.spacing-indicator');  // These might be desired
-            hideElements('.boundary-marquee'); 
-            hideElements('.test-frame-label'); 
+            hideElements('.boundary-marquee');
+            hideElements('.test-frame-label');
             hideElements('.frame-boundary-indicator');
             hideElements('.component-indicators');
-            
+
             hideElement('.wall-dimensions-display');
             // hideElement('.wall-controls'); // Keep wall controls like hide icons/all visible if user wants them
             hideElement('.debug-panel-container');
@@ -381,10 +397,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // This is now primarily handled by onclone, but kept for robustness / other CSS rules.
             document.body.classList.add('screenshot-mode');
 
-            html2canvas(wallCanvasForInit, { 
+            html2canvas(wallCanvasForInit, {
                 logging: false, // Reduce console noise
                 useCORS: true,
-                scale: 2, 
+                scale: 2,
                 backgroundColor: getComputedStyle(wallCanvasForInit).backgroundColor || '#f5f5f5',
                 onclone: (clonedDoc) => {
                     // Inject style to hide pseudo-elements like the frame move indicator in the cloned document
@@ -395,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         .frame.frame-collision-blocked { outline: none !important; box-shadow: none !important; }
                     `;
                     clonedDoc.head.appendChild(style);
-                    
+
                     // If there are other elements within wallCanvasForInit that need specific styling for screenshot,
                     // they can be targeted here. For example, if hide-icons/hide-all was done by adding classes
                     // to frames themselves, those classes might need to be added in the clonedDoc.
@@ -418,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Screenshot mode finished.');
             });
         });
-    } else if (isPlannerContext && (!screenshotButton || !wallCanvasElement)) {
+    } else if (isPlannerContext && (!screenshotButton || !wallCanvasForInit)) {
         console.warn('Screenshot button or wall canvas not found. Screenshot functionality disabled.');
     } else if (isPlannerContext && typeof html2canvas !== 'function') {
         console.warn('html2canvas library not loaded. Screenshot functionality disabled.');
