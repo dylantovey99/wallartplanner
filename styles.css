@@ -1060,3 +1060,276 @@ body.screenshot-mode .boundary-marquee,
 body.screenshot-mode .frame::before /* Hide move indicator */ {
     display: none !important;
 }
+
+/* ============================================
+   ACCESSIBILITY IMPROVEMENTS
+   ============================================ */
+
+/* Screen reader only text */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border-width: 0 !important;
+}
+
+/* Focus indicators for keyboard navigation */
+.frame:focus {
+    outline: 3px solid #2196F3 !important;
+    outline-offset: 2px;
+    z-index: 11;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
+}
+
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid #2196F3;
+    outline-offset: 2px;
+}
+
+/* Remove default focus for mouse users, keep for keyboard */
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Ensure focus visible for keyboard users */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+.frame:focus-visible {
+    outline: 3px solid #2196F3;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .frame:focus {
+        outline-width: 4px;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+        outline-width: 3px;
+    }
+
+    .frame-controls button {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .frame {
+        transition: none !important;
+    }
+}
+
+/* Improve touch targets for mobile */
+@media (max-width: 768px) {
+    .frame-controls button,
+    .delete-btn,
+    .frame-info-btn,
+    .photo-upload-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    button,
+    input[type="submit"],
+    input[type="button"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+    }
+
+    section {
+        background-color: #2a2a2a;
+        border-color: #3a3a3a;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .input-row input[type="number"],
+    .input-row select {
+        background-color: #333;
+        color: #e0e0e0;
+        border-color: #4a4a4a;
+    }
+
+    .wall-canvas {
+        background: #2a2a2a;
+        border-color: #4a4a4a;
+    }
+
+    .modal-content {
+        background-color: #2a2a2a;
+        color: #e0e0e0;
+    }
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #2196F3;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    z-index: 100000;
+    border-radius: 0 0 4px 0;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* Improve button accessibility */
+button,
+.btn-primary,
+.btn-secondary {
+    cursor: pointer;
+    user-select: none;
+}
+
+button:disabled,
+.btn-primary:disabled,
+.btn-secondary:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Keyboard hints (show when frame is focused) */
+.frame:focus::after {
+    content: 'Use arrow keys to move, Delete to remove, Enter for info';
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(33, 150, 243, 0.95);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1000;
+    animation: fadeInDown 0.3s ease-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Ensure adequate color contrast */
+.nav-link {
+    color: #333;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+/* Live region for announcements */
+.live-region {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+/* Improve modal accessibility */
+.modal[aria-hidden="true"] {
+    display: none;
+}
+
+.modal[aria-hidden="false"] {
+    display: block;
+}
+
+/* Focus trap helper */
+.modal-content:focus {
+    outline: none;
+}
+
+/* Ensure labels are properly associated */
+label {
+    cursor: pointer;
+}
+
+input:required + label::after,
+select:required + label::after {
+    content: ' *';
+    color: #d32f2f;
+}
+
+/* Error states */
+input:invalid:not(:placeholder-shown),
+select:invalid {
+    border-color: #d32f2f;
+}
+
+input:invalid:not(:placeholder-shown):focus,
+select:invalid:focus {
+    outline-color: #d32f2f;
+    box-shadow: 0 0 0 0.2rem rgba(211, 47, 47, 0.25);
+}
+
+/* Success states */
+input:valid:not(:placeholder-shown),
+select:valid {
+    border-color: #388e3c;
+}
+
+/* Print styles for accessibility */
+@media print {
+    .nav-bar,
+    .controls-section,
+    .frame-controls,
+    button {
+        display: none !important;
+    }
+
+    .wall-section {
+        width: 100%;
+    }
+
+    .frame:focus::after {
+        display: none;
+    }
+}

@@ -1,27 +1,28 @@
 <?php
- session_start();
+// Secure session initialization - only call once
 add_action('init', 'register_my_session');
 
 function register_my_session()
 {
-
-    if (!session_id()) {
-
-       
-        session_start();
-            // session_start( [
-            // 'read_and_close' => true,
-            // ] );
-
-             // server should keep session data for AT LEAST 1 hour
-
+    // Check if session is already active
+    if (session_status() === PHP_SESSION_NONE) {
+        // Set secure session parameters BEFORE starting session
+        ini_set('session.cookie_httponly', 1);
+        ini_set('session.cookie_secure', 1); // Requires HTTPS
+        ini_set('session.cookie_samesite', 'Strict');
+        ini_set('session.use_strict_mode', 1);
         ini_set('session.gc_maxlifetime', 3600);
 
+        session_set_cookie_params([
+            'lifetime' => 3600,
+            'path' => '/',
+            'domain' => $_SERVER['HTTP_HOST'] ?? '',
+            'secure' => true,      // HTTPS only
+            'httponly' => true,    // No JavaScript access
+            'samesite' => 'Strict' // CSRF protection
+        ]);
 
-
-        // each client should remember their session id for EXACTLY 1 hour
-
-        session_set_cookie_params(3600);
+        session_start();
     }
 }
 add_filter('wc_session_expiring', 'filter_ExtendSessionExpiring');
@@ -44,24 +45,208 @@ function filter_ExtendSessionExpired($seconds)
 
 
 
-function getUniqueId($length)
+/**
+ * Generate cryptographically secure unique ID
+ * @param int $length Desired length of ID
+ * @return string Secure random ID
+ */
+function getUniqueId($length = 32)
 {
-  $unique_value = base_convert(mt_rand(122, 782) . substr(number_format(microtime(true), 1, '', ''), 5), 10, 36);
-  $unique_value = substr(sha1($unique_value), rand(5, 10), $length);
-  return $unique_value;
+    try {
+        // Use random_bytes for cryptographically secure randomness
+        $bytes = random_bytes(ceil($length / 2));
+        $unique_value = bin2hex($bytes);
+        return substr($unique_value, 0, $length);
+    } catch (Exception $e) {
+        // Fallback to openssl_random_pseudo_bytes
+        error_log('random_bytes failed, using openssl fallback: ' . $e->getMessage());
+        $bytes = openssl_random_pseudo_bytes(ceil($length / 2));
+        $unique_value = bin2hex($bytes);
+        return substr($unique_value, 0, $length);
+    }
 }
 
+// IMPORTANT: Define encryption key in wp-config.php for production
+// define('WALL_ART_ENCRYPTION_KEY', 'your-64-character-hex-key-here');
+// Generate key with: echo bin2hex(random_bytes(32));
+
+/**
+ * Encrypt sensitive data using AES-256-GCM
+ * @param string $data Data to encrypt
+ * @return string|false Base64 encoded encrypted data or false on failure
+ */
+function encryptData($data)
+{
+    // Use defined key or generate temporary one (not secure for production!)
+    $key = defined('WALL_ART_ENCRYPTION_KEY') ?
+           hex2bin(WALL_ART_ENCRYPTION_KEY) :
+           'temp-key-CHANGE-IN-PRODUCTION!!'; // 32 chars for AES-256
+
+    if (!defined('WALL_ART_ENCRYPTION_KEY')) {
+        error_log('WARNING: Using temporary encryption key. Define WALL_ART_ENCRYPTION_KEY in wp-config.php');
+    }
+
+    $cipher = 'aes-256-gcm';
+    $ivLength = openssl_cipher_iv_length($cipher);
+
+    if ($ivLength === false) {
+        error_log('Cipher not supported: ' . $cipher);
+        return false;
+    }
+
+    $iv = openssl_random_pseudo_bytes($ivLength);
+    $tag = '';
+
+    $encrypted = openssl_encrypt(
+        $data,
+        $cipher,
+        $key,
+        OPENSSL_RAW_DATA,
+        $iv,
+        $tag,
+        '',
+        16 // Tag length
+    );
+
+    if ($encrypted === false) {
+        error_log('Encryption failed: ' . openssl_error_string());
+        return false;
+    }
+
+    // Combine IV + tag + encrypted data
+    return base64_encode($iv . $tag . $encrypted);
+}
+
+/**
+ * Decrypt data encrypted with encryptData()
+ * @param string $encrypted Base64 encoded encrypted data
+ * @return string|false Decrypted data or false on failure
+ */
+function decryptData($encrypted)
+{
+    $key = defined('WALL_ART_ENCRYPTION_KEY') ?
+           hex2bin(WALL_ART_ENCRYPTION_KEY) :
+           'temp-key-CHANGE-IN-PRODUCTION!!';
+
+    $cipher = 'aes-256-gcm';
+    $ivLength = openssl_cipher_iv_length($cipher);
+    $tagLength = 16;
+
+    $decoded = base64_decode($encrypted);
+    if ($decoded === false || strlen($decoded) < ($ivLength + $tagLength)) {
+        error_log('Invalid encrypted data format');
+        return false;
+    }
+
+    $iv = substr($decoded, 0, $ivLength);
+    $tag = substr($decoded, $ivLength, $tagLength);
+    $ciphertext = substr($decoded, $ivLength + $tagLength);
+
+    $decrypted = openssl_decrypt(
+        $ciphertext,
+        $cipher,
+        $key,
+        OPENSSL_RAW_DATA,
+        $iv,
+        $tag
+    );
+
+    if ($decrypted === false) {
+        error_log('Decryption failed: ' . openssl_error_string());
+        return false;
+    }
+
+    return $decrypted;
+}
+
+/**
+ * Legacy function for backward compatibility
+ * @deprecated Use encryptData() instead
+ */
 function encodeAndChunkData($data, $chunkSize = 100)
 {
-    $encodedData = base64_encode($data);
-    return str_split($encodedData, $chunkSize);
+    error_log('DEPRECATED: encodeAndChunkData() uses insecure base64. Use encryptData() instead.');
+    $encrypted = encryptData($data);
+    if ($encrypted === false) {
+        return false;
+    }
+    return str_split($encrypted, $chunkSize);
 }
 
-// Function to decode and join chunks into original data
+/**
+ * Legacy function for backward compatibility
+ * @deprecated Use decryptData() instead
+ */
 function decodeChunks($chunks)
 {
-    $encodedData = implode('', $chunks);
-    return base64_decode($encodedData);
+    error_log('DEPRECATED: decodeChunks() uses insecure base64. Use decryptData() instead.');
+    $encrypted = implode('', $chunks);
+    return decryptData($encrypted);
+}
+
+/**
+ * Validate and sanitize image upload
+ * @param array $file File from $_FILES
+ * @return array Result with 'success' or 'error' key
+ */
+function validate_image_upload($file)
+{
+    $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    $max_size = 5 * 1024 * 1024; // 5MB
+
+    // Check if file exists
+    if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
+        return ['error' => 'No file uploaded or invalid upload'];
+    }
+
+    // Check file size
+    if ($file['size'] > $max_size) {
+        return ['error' => 'File too large. Maximum 5MB allowed'];
+    }
+
+    // Verify MIME type using finfo
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+
+    if (!in_array($mime, $allowed_types, true)) {
+        return ['error' => 'Invalid file type. Only JPEG, PNG, GIF, and WebP allowed'];
+    }
+
+    // Validate image dimensions
+    $image_info = getimagesize($file['tmp_name']);
+    if ($image_info === false) {
+        return ['error' => 'Invalid image file or corrupted'];
+    }
+
+    // Check reasonable dimensions (prevent memory exhaustion)
+    if ($image_info[0] > 10000 || $image_info[1] > 10000) {
+        return ['error' => 'Image dimensions too large. Maximum 10000x10000 pixels'];
+    }
+
+    return ['success' => true, 'mime' => $mime, 'dimensions' => $image_info];
+}
+
+/**
+ * Sanitize frame data from user input
+ * @param array $data Raw frame data
+ * @return array Sanitized frame data
+ */
+function sanitize_frame_data($data)
+{
+    $sanitized = [
+        'printWidth' => max(0.1, min(200, floatval($data['printWidth'] ?? 16))),
+        'printHeight' => max(0.1, min(200, floatval($data['printHeight'] ?? 20))),
+        'mattWidth' => max(0, min(50, floatval($data['mattWidth'] ?? 5))),
+        'frameWidth' => in_array($data['frameWidth'] ?? 20, [20, 30, 40], true) ?
+                        intval($data['frameWidth']) : 20,
+        'frameMaterial' => in_array($data['frameMaterial'] ?? 'black',
+                                   ['black', 'white', 'oak', 'walnut'], true) ?
+                          sanitize_text_field($data['frameMaterial']) : 'black',
+        'count' => max(1, min(100, intval($data['count'] ?? 1)))
+    ];
+
+    return $sanitized;
 }
 include('lib/upload-resized-images.php');
 //include('lib/ajax-checkout.php');
