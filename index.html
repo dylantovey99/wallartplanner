@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wall Art Planner</title>
+    <title>Wall Art Planner — Brilliant Prints</title>
+    <meta name="description" content="Plan your gallery wall online: arrange framed prints on a virtual wall, preview your own photos in the frames, and get instant framing price estimates from Brilliant Prints.">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
@@ -99,7 +100,7 @@
 
             <!-- Add New Collection -->
             <section class="collapsed">
-                <h2>Add New Collection</h2>
+                <h2>Add Frames</h2>
                 <div class="section-content">
                     <div class="input-row">
                         <label for="printPreset">Common Print Sizes</label>
@@ -129,7 +130,7 @@
                         <button id="swapOrientation" class="btn-secondary" type="button">⇄ Swap Width / Height</button>
                     </div>
                     <div class="input-row">
-                        <label for="mattWidth">Matt Width (cm)</label>
+                        <label for="mattWidth">Mat Width (cm)</label>
                         <input type="number" id="mattWidth" value="5" step="0.1" min="0" max="20">
                     </div>
                     <div class="input-row">
@@ -153,7 +154,7 @@
                         <label for="frameCount">Number of Frames</label>
                         <input type="number" id="frameCount" value="1" min="1">
                     </div>
-                    <button id="addCollection" class="btn-primary">+ Add Collection</button>
+                    <button id="addCollection" class="btn-primary">+ Add Frames to Wall</button>
                     <p class="help-text">Tip: once a frame is on the wall, click its 📷 button to preview one of your own photos inside it.</p>
                 </div>
             </section>
@@ -227,10 +228,10 @@
 
             <!-- Collections -->
             <section class="collapsed">
-                <h2>Price this Collection</h2>
+                <h2>Pricing</h2>
                 <div class="section-content">
                     <div id="collectionsLegend" class="collections-list"></div>
-                    <button id="calculatePrice" class="btn-primary">Calculate Collection Price</button>
+                    <button id="calculatePrice" class="btn-primary">Calculate Price</button>
                 </div>
             </section>
         </div>
@@ -290,6 +291,12 @@
             <div id="priceSummaryContent"></div>
         </div>
     </div>
+
+
+    <footer class="site-footer">
+        <p>&copy; Brilliant Prints — Wall Art Planner (beta). Questions about your layout or quote?
+            <a href="https://www.brilliantprints.com.au" rel="noopener">Contact the Brilliant Prints team</a>.</p>
+    </footer>
 
     <!-- Load JavaScript files -->
     <script src="js/utils.js" type="module"></script>

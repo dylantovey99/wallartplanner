@@ -162,7 +162,7 @@ class PriceCalculator {
             
             html += `
                 <div class="collection-price">
-                    <h3>Collection ${collectionId}</h3>
+                    <h3>Frame Set ${collectionId}</h3>
                     <div class="frames-list">
             `;
 
@@ -195,6 +195,7 @@ class PriceCalculator {
             <div class="grand-total">
                 Grand Total: ${formatPrice(grandTotal)}
             </div>
+            <p class="price-disclaimer">All prices are estimates in AUD. The Brilliant Prints team will confirm final pricing, shipping and availability before your order is placed.</p>
         </div>`;
 
 

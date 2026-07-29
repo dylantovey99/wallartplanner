@@ -1205,6 +1205,31 @@ input:checked + .slider:before {
     width: 100%;
 }
 
+.price-disclaimer {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+/* Site footer */
+.site-footer {
+    margin-top: 2rem;
+    padding: 1.25rem 16px;
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-surface-alt);
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
+.site-footer p {
+    margin: 0;
+}
+
+.site-footer a {
+    color: var(--color-primary);
+}
+
 /* Respect users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
     *,

@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.suggestionEngine.updateSuggestionUI(suggestion);
             } catch (error) {
                 console.error('Error calculating suggestion:', error);
-                alert('Error calculating suggestion: ' + error.message);
+                alert('Sorry — we could not calculate a suggestion for this layout. Try adjusting your frames and trying again.');
                 if(window.suggestionEngine) window.suggestionEngine.hideSuggestionUI();
             }
         });
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 priceSummaryModal.style.display = 'block';
             } catch (error) {
                 console.error('Error calculating prices:', error);
-                alert(error.message);
+                alert('Sorry — the price could not be calculated. Please check your frames and try again.');
             }
         });
     }
@@ -266,10 +266,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Function to expand Add New Collection section
+    // Function to expand the Add Frames section
     const expandAddNewCollection = () => {
         const addNewCollectionSection = Array.from(document.querySelectorAll('.controls-section section h2'))
-                                        .find(h2 => h2.textContent.includes('Add New Collection'))
+                                        .find(h2 => h2.textContent.includes('Add Frames'))
                                         ?.closest('section');
         if (addNewCollectionSection) {
             addNewCollectionSection.classList.remove('collapsed');
@@ -407,13 +407,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     // However, current implementation hides controls directly.
                 }
             }).then(canvas => {
+                // Brand watermark on the exported image
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    const fontSize = Math.max(16, Math.round(canvas.width / 60));
+                    ctx.font = `${fontSize}px system-ui, -apple-system, sans-serif`;
+                    ctx.fillStyle = 'rgba(33, 37, 41, 0.5)';
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText('Created with the Brilliant Prints Wall Art Planner',
+                        canvas.width - fontSize, canvas.height - fontSize * 0.75);
+                }
                 const link = document.createElement('a');
                 link.download = 'wall-layout.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             }).catch(err => {
                 console.error('Error generating screenshot:', err);
-                alert('Could not generate screenshot. See console for details.');
+                alert('Sorry — the screenshot could not be generated. Please try again.');
             }).finally(() => {
                 // Restore original display styles
                 elementsToHideTemporarily.forEach(item => {
