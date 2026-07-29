@@ -583,13 +583,17 @@ export default class Frame {
     }
     
     applyThumbnailImage(imageUrl) {
+        // Only accept data: image URLs — this value round-trips through
+        // localStorage, so never inject arbitrary strings into url()
+        if (typeof imageUrl !== 'string' || !imageUrl.startsWith('data:image/')) return;
+
         const framePrint = this.element.querySelector('.frame-print');
-        
+
         // Store the image URL
         this.thumbnailImage = imageUrl;
-        
+
         // Apply the image to the frame print area
-        framePrint.style.backgroundImage = `url(${imageUrl})`;
+        framePrint.style.backgroundImage = `url("${imageUrl}")`;
         framePrint.style.backgroundSize = 'cover';
         framePrint.style.backgroundPosition = 'center';
         framePrint.style.backgroundColor = 'transparent';

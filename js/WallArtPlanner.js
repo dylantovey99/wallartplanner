@@ -11,6 +11,9 @@ export default class WallArtPlanner {
     constructor() {
         console.log('Initializing WallArtPlanner');
         this.wall = { ...DEFAULT_WALL };
+        // Wall dimensions are ALWAYS stored in inches; wallUnit only affects
+        // how the width/height inputs and displays are presented ('in' | 'cm')
+        this.wallUnit = 'in';
         // Live pixels-per-inch for the current canvas size. Frames, drag math and the
         // marquee all read this instead of the fixed SCALE constant so the rendering
         // stays correct when the canvas is clamped to its container or the viewport.
@@ -79,6 +82,10 @@ export default class WallArtPlanner {
         this.deleteAllFramesBtn = document.getElementById('deleteAllFramesBtn');
         this.backgroundImageUpload = document.getElementById('backgroundImageUpload');
         this.wallBackgroundImage = document.getElementById('wallBackgroundImage');
+        this.wallUnitSelect = document.getElementById('wallUnits');
+        this.removeBackgroundBtn = document.getElementById('removeBackgroundBtn');
+        this.printPresetSelect = document.getElementById('printPreset');
+        this.swapOrientationButton = document.getElementById('swapOrientation');
         
         // New collection inputs
         this.printWidthInput = document.getElementById('printWidth');
@@ -93,8 +100,7 @@ export default class WallArtPlanner {
         this.collectionsLegend = document.getElementById('collectionsLegend');
 
         // Ensure elements exist before setting values, especially for test pages
-        if (this.wallWidthInput) this.wallWidthInput.value = this.wall.width;
-        if (this.wallHeightInput) this.wallHeightInput.value = this.wall.height;
+        this.syncWallInputs();
         if (this.printWidthInput) this.printWidthInput.value = this.newCollection.printWidth;
         if (this.printHeightInput) this.printHeightInput.value = this.newCollection.printHeight;
         if (this.mattWidthInput) this.mattWidthInput.value = this.newCollection.mattWidth;
@@ -106,20 +112,96 @@ export default class WallArtPlanner {
         this.updateWallDisplay(); // Call initial display update
     }
 
+    // --- Wall unit helpers (internal storage is ALWAYS inches) ---
+
+    toDisplayUnit(inches) {
+        return this.wallUnit === 'cm' ? inches * 2.54 : inches;
+    }
+
+    fromDisplayUnit(value) {
+        return this.wallUnit === 'cm' ? cmToInches(value) : value;
+    }
+
+    formatWallMeasurement(inches) {
+        return this.wallUnit === 'cm'
+            ? `${(inches * 2.54).toFixed(1)}cm`
+            : formatMeasurement(inches);
+    }
+
+    // Push the internal (inch) wall dimensions into the inputs in the display unit
+    syncWallInputs() {
+        const unitText = this.wallUnit === 'cm' ? 'cm' : 'inches';
+        document.querySelectorAll('.wall-unit-label').forEach(el => el.textContent = unitText);
+        if (this.wallUnitSelect) this.wallUnitSelect.value = this.wallUnit;
+
+        const min = this.wallUnit === 'cm' ? 61 : 24;    // 24in ≈ 61cm
+        const max = this.wallUnit === 'cm' ? 1524 : 600; // 600in = 1524cm
+        [this.wallWidthInput, this.wallHeightInput].forEach(input => {
+            if (input) {
+                input.min = String(min);
+                input.max = String(max);
+            }
+        });
+
+        if (this.wallWidthInput) this.wallWidthInput.value = Number(this.toDisplayUnit(this.wall.width).toFixed(1));
+        if (this.wallHeightInput) this.wallHeightInput.value = Number(this.toDisplayUnit(this.wall.height).toFixed(1));
+    }
+
     setupEventListeners() {
-        // Wall dimension changes
+        // Wall dimension changes (inputs are in the selected display unit)
         if (this.wallWidthInput) {
             this.wallWidthInput.addEventListener('change', () => {
-                this.wall.width = Number(this.wallWidthInput.value);
+                this.wall.width = this.fromDisplayUnit(Number(this.wallWidthInput.value));
                 this.updateWallDisplay(); // This will call updateBoundaryMarquee
                 this.saveState();
             });
         }
         if (this.wallHeightInput) {
             this.wallHeightInput.addEventListener('change', () => {
-                this.wall.height = Number(this.wallHeightInput.value);
+                this.wall.height = this.fromDisplayUnit(Number(this.wallHeightInput.value));
                 this.updateWallDisplay(); // This will call updateBoundaryMarquee
                 this.saveState();
+            });
+        }
+
+        // Wall unit toggle: converts the displayed values, not the stored inches
+        if (this.wallUnitSelect) {
+            this.wallUnitSelect.addEventListener('change', () => {
+                this.wallUnit = this.wallUnitSelect.value === 'cm' ? 'cm' : 'in';
+                this.syncWallInputs();
+                this.updateWallDisplay();
+                this.saveState();
+            });
+        }
+
+        // Remove background image without destroying the layout
+        if (this.removeBackgroundBtn) {
+            this.removeBackgroundBtn.addEventListener('click', () => this.removeBackgroundImage());
+        }
+
+        // Common print size presets fill the width/height fields
+        if (this.printPresetSelect) {
+            this.printPresetSelect.addEventListener('change', (e) => {
+                if (!e.target.value) return;
+                const [w, h] = e.target.value.split('x').map(Number);
+                if (!w || !h) return;
+                if (this.printWidthInput) this.printWidthInput.value = w;
+                if (this.printHeightInput) this.printHeightInput.value = h;
+                this.newCollection.printWidth = w;
+                this.newCollection.printHeight = h;
+            });
+        }
+
+        // Portrait/landscape swap for the new-collection print size
+        if (this.swapOrientationButton) {
+            this.swapOrientationButton.addEventListener('click', () => {
+                const w = this.printWidthInput ? Number(this.printWidthInput.value) : this.newCollection.printWidth;
+                const h = this.printHeightInput ? Number(this.printHeightInput.value) : this.newCollection.printHeight;
+                if (this.printWidthInput) this.printWidthInput.value = h;
+                if (this.printHeightInput) this.printHeightInput.value = w;
+                this.newCollection.printWidth = h;
+                this.newCollection.printHeight = w;
+                if (this.printPresetSelect) this.printPresetSelect.value = '';
             });
         }
 
@@ -224,14 +306,14 @@ export default class WallArtPlanner {
                             this.wall.height = BACKGROUND_IMAGE_FIXED_HEIGHT_INCHES;
                             this.wall.width = (naturalWidth / naturalHeight) * BACKGROUND_IMAGE_FIXED_HEIGHT_INCHES;
 
-                            if(this.wallHeightInput) this.wallHeightInput.value = this.wall.height.toFixed(1);
-                            if(this.wallWidthInput) this.wallWidthInput.value = this.wall.width.toFixed(1);
+                            this.syncWallInputs();
                             if(this.wallWidthInput) this.wallWidthInput.readOnly = true;
                             if(this.wallHeightInput) this.wallHeightInput.readOnly = true;
                             if(this.wallBackgroundImage) {
                                 this.wallBackgroundImage.src = e.target.result;
                                 this.wallBackgroundImage.style.display = 'block';
                             }
+                            if(this.removeBackgroundBtn) this.removeBackgroundBtn.style.display = 'inline-block';
                             this.updateWallDisplay();
                             this.saveState();
                         };
@@ -239,20 +321,20 @@ export default class WallArtPlanner {
                     };
                     reader.readAsDataURL(file);
                 } else {
-                    if(this.wallBackgroundImage) {
-                        this.wallBackgroundImage.src = '#';
-                        this.wallBackgroundImage.style.display = 'none';
-                    }
-                    if(this.wallWidthInput) this.wallWidthInput.readOnly = false;
-                    if(this.wallHeightInput) this.wallHeightInput.readOnly = false;
-                    this.saveState();
+                    this.removeBackgroundImage();
                 }
             });
         }
         
-        // New collection input listeners
-        if(this.printWidthInput) this.printWidthInput.addEventListener('input', (e) => this.newCollection.printWidth = Number(e.target.value));
-        if(this.printHeightInput) this.printHeightInput.addEventListener('input', (e) => this.newCollection.printHeight = Number(e.target.value));
+        // New collection input listeners (manual edits reset the preset to Custom)
+        if(this.printWidthInput) this.printWidthInput.addEventListener('input', (e) => {
+            this.newCollection.printWidth = Number(e.target.value);
+            if (e.isTrusted && this.printPresetSelect) this.printPresetSelect.value = '';
+        });
+        if(this.printHeightInput) this.printHeightInput.addEventListener('input', (e) => {
+            this.newCollection.printHeight = Number(e.target.value);
+            if (e.isTrusted && this.printPresetSelect) this.printPresetSelect.value = '';
+        });
         if(this.mattWidthInput) this.mattWidthInput.addEventListener('input', (e) => this.newCollection.mattWidth = Number(e.target.value));
         if (this.frameWidthSelect) this.frameWidthSelect.addEventListener('change', (e) => this.newCollection.frameWidth = mmToInches(Number(e.target.value)));
         if (this.frameMaterialSelect) this.frameMaterialSelect.addEventListener('change', (e) => this.newCollection.frameMaterial = e.target.value);
@@ -323,14 +405,27 @@ export default class WallArtPlanner {
         }
     }
 
+    // Clear the wall photo and unlock the wall dimension inputs.
+    // Previously the only way out of a background upload was "Delete All Frames".
+    removeBackgroundImage() {
+        if (this.wallBackgroundImage) {
+            this.wallBackgroundImage.removeAttribute('src');
+            this.wallBackgroundImage.style.display = 'none';
+        }
+        if (this.backgroundImageUpload) this.backgroundImageUpload.value = '';
+        if (this.wallWidthInput) this.wallWidthInput.readOnly = false;
+        if (this.wallHeightInput) this.wallHeightInput.readOnly = false;
+        if (this.removeBackgroundBtn) this.removeBackgroundBtn.style.display = 'none';
+        this.saveState();
+    }
+
     loadSavedState() {
         const savedState = localStorage.getItem('wallArtPlannerState');
         if (!savedState) {
             console.log("No saved state found, using default wall dimensions.");
             this.wall = { ...DEFAULT_WALL }; // Use new 80x80 default
-            if(this.wallWidthInput) this.wallWidthInput.value = this.wall.width;
-            if(this.wallHeightInput) this.wallHeightInput.value = this.wall.height;
-            this.updateWallDisplay(); 
+            this.syncWallInputs();
+            this.updateWallDisplay();
             return;
         }
 
@@ -348,19 +443,26 @@ export default class WallArtPlanner {
                 this.wall = { ...DEFAULT_WALL }; // Use new 80x80 default
             }
             
-            if(this.wallWidthInput) this.wallWidthInput.value = this.wall.width;
-            if(this.wallHeightInput) this.wallHeightInput.value = this.wall.height;
+            if (state.wallUnit === 'cm' || state.wallUnit === 'in') {
+                this.wallUnit = state.wallUnit;
+            }
+            this.syncWallInputs();
 
-            if (state.backgroundImageUrl && this.wallBackgroundImage) {
-                this.wallBackgroundImage.src = state.backgroundImageUrl;
+            // Only accept data: image URLs from storage (guards against injected values)
+            const savedBackground = typeof state.backgroundImageUrl === 'string' &&
+                state.backgroundImageUrl.startsWith('data:image/') ? state.backgroundImageUrl : null;
+            if (savedBackground && this.wallBackgroundImage) {
+                this.wallBackgroundImage.src = savedBackground;
                 this.wallBackgroundImage.style.display = 'block';
                 if(this.wallWidthInput) this.wallWidthInput.readOnly = true;
                 if(this.wallHeightInput) this.wallHeightInput.readOnly = true;
+                if(this.removeBackgroundBtn) this.removeBackgroundBtn.style.display = 'inline-block';
             } else if (this.wallBackgroundImage) {
-                this.wallBackgroundImage.src = '#';
+                this.wallBackgroundImage.removeAttribute('src');
                 this.wallBackgroundImage.style.display = 'none';
                 if(this.wallWidthInput) this.wallWidthInput.readOnly = false;
                 if(this.wallHeightInput) this.wallHeightInput.readOnly = false;
+                if(this.removeBackgroundBtn) this.removeBackgroundBtn.style.display = 'none';
             }
 
             if (state.gridSize && this.gridSizeSelect) this.gridSizeSelect.value = state.gridSize;
@@ -512,8 +614,8 @@ export default class WallArtPlanner {
             this.rerenderFrames();
         }
 
-        this.wallWidthDisplay.textContent = formatMeasurement(this.wall.width);
-        this.wallHeightDisplay.textContent = `Height: ${formatMeasurement(this.wall.height)}`;
+        this.wallWidthDisplay.textContent = this.formatWallMeasurement(this.wall.width);
+        this.wallHeightDisplay.textContent = `Height: ${this.formatWallMeasurement(this.wall.height)}`;
 
         this.scheduleMarqueeUpdate();
     }
@@ -680,6 +782,7 @@ export default class WallArtPlanner {
             // Create a clean version of the state
             const state = {
                 wall: { ...this.wall },
+                wallUnit: this.wallUnit,
                 collections: collectionsToSave.map(collection => collection.serialize()),
                 newCollection: { ...this.newCollection },
                 gridSize: this.gridSizeSelect ? Number(this.gridSizeSelect.value) : 0.5,

@@ -134,10 +134,12 @@ export default class DeletionManager {
             
             // 5. Reset background image if requested
             if (includeBackgroundImage && this.planner.wallBackgroundImage) {
-                this.planner.wallBackgroundImage.src = '#';
+                this.planner.wallBackgroundImage.removeAttribute('src');
                 this.planner.wallBackgroundImage.style.display = 'none';
                 if (this.planner.wallWidthInput) this.planner.wallWidthInput.readOnly = false;
                 if (this.planner.wallHeightInput) this.planner.wallHeightInput.readOnly = false;
+                if (this.planner.removeBackgroundBtn) this.planner.removeBackgroundBtn.style.display = 'none';
+                if (this.planner.backgroundImageUpload) this.planner.backgroundImageUpload.value = '';
             }
             
             // 6. Update UI
