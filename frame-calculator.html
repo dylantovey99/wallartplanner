@@ -20,7 +20,7 @@
     </nav>
 
     <div class="container">
-        <div class="controls-section">
+        <div class="calculator-container">
             <section>
                 <h3>Calculate Frame Size from Print Size</h3>
                 <p>Enter your print dimensions, mat width, and frame width to calculate the total frame size.</p>
@@ -179,26 +179,30 @@
             }
 
             function updatePreview(totalWidthMM, totalHeightMM, frameWidthMM, matWidthMM) {
-                const maxPreviewWidth = 400;
-                const scale = maxPreviewWidth / totalWidthMM;
-                const previewHeight = totalHeightMM * scale;
-
-                framePreview.style.width = `${maxPreviewWidth}px`;
-                framePreview.style.height = `${previewHeight}px`;
+                // Fully responsive preview: percentage insets + aspect-ratio,
+                // so it scales with its container instead of overflowing on phones
+                framePreview.style.width = '100%';
+                framePreview.style.maxWidth = '400px';
+                framePreview.style.height = 'auto';
+                framePreview.style.aspectRatio = `${totalWidthMM} / ${totalHeightMM}`;
 
                 const mat = framePreview.querySelector('.frame-mat');
                 const print = framePreview.querySelector('.frame-print');
 
-                mat.style.left = `${frameWidthMM * scale}px`;
-                mat.style.top = `${frameWidthMM * scale}px`;
-                mat.style.right = `${frameWidthMM * scale}px`;
-                mat.style.bottom = `${frameWidthMM * scale}px`;
+                // left/right percentages resolve against width, top/bottom against height
+                const frameX = (frameWidthMM / totalWidthMM) * 100;
+                const frameY = (frameWidthMM / totalHeightMM) * 100;
+                mat.style.left = `${frameX}%`;
+                mat.style.right = `${frameX}%`;
+                mat.style.top = `${frameY}%`;
+                mat.style.bottom = `${frameY}%`;
 
-                const printInset = (frameWidthMM + matWidthMM) * scale;
-                print.style.left = `${printInset}px`;
-                print.style.top = `${printInset}px`;
-                print.style.right = `${printInset}px`;
-                print.style.bottom = `${printInset}px`;
+                const printX = ((frameWidthMM + matWidthMM) / totalWidthMM) * 100;
+                const printY = ((frameWidthMM + matWidthMM) / totalHeightMM) * 100;
+                print.style.left = `${printX}%`;
+                print.style.right = `${printX}%`;
+                print.style.top = `${printY}%`;
+                print.style.bottom = `${printY}%`;
             }
 
             addToPlannerBtn.addEventListener('click', () => {

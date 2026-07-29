@@ -137,13 +137,14 @@ export default class Frame {
             </div>
         `);
 
-        // Set exact dimensions in pixels
-        element.style.width = `${this.width * SCALE}px`;
-        element.style.height = `${this.height * SCALE}px`;
+        // Set exact dimensions in pixels using the live canvas scale
+        const scale = this.getScale();
+        element.style.width = `${this.width * scale}px`;
+        element.style.height = `${this.height * scale}px`;
 
         // Calculate inset values for matt and print
-        const frameInset = `${this.frameWidth * SCALE}px`;
-        const mattInset = `${(this.frameWidth + this.mattWidth) * SCALE}px`;
+        const frameInset = `${this.frameWidth * scale}px`;
+        const mattInset = `${(this.frameWidth + this.mattWidth) * scale}px`;
 
         // Set dimensions for frame layers
         const frameLayers = element.querySelector('.frame-layers');
@@ -622,6 +623,25 @@ export default class Frame {
         this.dragManager.setGridSize(size);
     }
 
+    // Live pixels-per-inch: the planner recomputes it whenever the canvas is
+    // resized/clamped; SCALE is only the fallback for planner-less contexts.
+    getScale() {
+        return (this.planner && this.planner.scale) ? this.planner.scale : SCALE;
+    }
+
+    // Re-apply pixel size, layer insets and position for the current scale
+    applyScale() {
+        if (!this.element) return;
+        const scale = this.getScale();
+        this.element.style.width = `${this.width * scale}px`;
+        this.element.style.height = `${this.height * scale}px`;
+        const frameMatt = this.element.querySelector('.frame-matt');
+        if (frameMatt) frameMatt.style.inset = `${this.frameWidth * scale}px`;
+        const framePrint = this.element.querySelector('.frame-print');
+        if (framePrint) framePrint.style.inset = `${(this.frameWidth + this.mattWidth) * scale}px`;
+        this.updatePosition();
+    }
+
     dispatchFrameMoveEvent() {
         const eventDetail = {
             x: this.x,
@@ -650,9 +670,10 @@ export default class Frame {
     }
 
     updatePosition() {
-        // Set exact position in pixels
-        const transformX = this.x * SCALE;
-        const transformY = this.y * SCALE;
+        // Set exact position in pixels using the live canvas scale
+        const scale = this.getScale();
+        const transformX = this.x * scale;
+        const transformY = this.y * scale;
         
         console.log(`Frame ${this.id} updatePosition CALLED: current this.x=${this.x}, this.y=${this.y}. Applying transform: translate(${transformX}px, ${transformY}px)`);
 
@@ -677,7 +698,7 @@ export default class Frame {
                 spacingIndicator.style.display = 'block';
                 
                 // Set the size of the spacing indicator to visualize the minimum distance
-                const spacingPx = spacing * SCALE;
+                const spacingPx = spacing * this.getScale();
                 spacingIndicator.style.top = `-${spacingPx}px`;
                 spacingIndicator.style.right = `-${spacingPx}px`;
                 spacingIndicator.style.bottom = `-${spacingPx}px`;

@@ -11,6 +11,10 @@ export default class WallArtPlanner {
     constructor() {
         console.log('Initializing WallArtPlanner');
         this.wall = { ...DEFAULT_WALL };
+        // Live pixels-per-inch for the current canvas size. Frames, drag math and the
+        // marquee all read this instead of the fixed SCALE constant so the rendering
+        // stays correct when the canvas is clamped to its container or the viewport.
+        this.scale = SCALE;
         this.collections = []; // Holds Collection objects, which hold Frame objects
         this.frameDetails = new Map(); // Retained, as it might be used by other features or for event-driven optimizations.
                                      // However, marquee will now primarily use getAllFrameObjects().
@@ -37,6 +41,14 @@ export default class WallArtPlanner {
         // Note: no 'storage' event listener. If two tabs are open, last writer wins;
         // the previous cross-tab "validation" destroyed saved frames because frame ids
         // were not serialized, and rewriting live DOM state from another tab is unsafe.
+
+        // Re-fit the canvas (and re-scale all frames) when the viewport changes
+        this._resizeHandler = () => {
+            clearTimeout(this._resizeTimer);
+            this._resizeTimer = setTimeout(() => this.updateWallDisplay(), 150);
+        };
+        window.addEventListener('resize', this._resizeHandler);
+        window.addEventListener('orientationchange', this._resizeHandler);
     }
 
     // Coalesce marquee updates so bursts of frameMove events cost one recompute per paint
@@ -444,8 +456,8 @@ export default class WallArtPlanner {
         // Determine maximum visual dimensions for the canvas
         // Max width is the width of the parent element (.wall-section)
         const maxWidthForCanvas = this.wallCanvas.parentElement ? Math.max(this.wallCanvas.parentElement.offsetWidth, 200) : 1150; // Fallback 1150, min 200
-        // Max height is defined by CSS for .wall-canvas
-        const maxHeightForCanvas = 900; 
+        // Max height tracks the viewport so tall walls fit on small screens
+        const maxHeightForCanvas = Math.max(300, Math.min(900, window.innerHeight * 0.75));
 
         let displayPixelWidth = targetPixelWidth;
         let displayPixelHeight = targetPixelHeight;
@@ -490,10 +502,27 @@ export default class WallArtPlanner {
         this.wallCanvas.style.width = `${displayPixelWidth}px`;
         this.wallCanvas.style.height = `${displayPixelHeight}px`;
 
+        // Derive the live pixels-per-inch from the fitted canvas and re-scale
+        // every frame so on-screen geometry always matches the wall's inches
+        const previousScale = this.scale;
+        this.scale = (this.wall.width > 0 && displayPixelWidth > 0)
+            ? displayPixelWidth / this.wall.width
+            : SCALE;
+        if (Math.abs(this.scale - previousScale) > 1e-9) {
+            this.rerenderFrames();
+        }
+
         this.wallWidthDisplay.textContent = formatMeasurement(this.wall.width);
         this.wallHeightDisplay.textContent = `Height: ${formatMeasurement(this.wall.height)}`;
 
         this.scheduleMarqueeUpdate();
+    }
+
+    // Re-apply pixel sizes/positions to all frames after the scale changes
+    rerenderFrames() {
+        this.collections.forEach(collection => {
+            collection.frames.forEach(frame => frame.applyScale());
+        });
     }
 
     createBoundaryMarquee() {
@@ -573,10 +602,11 @@ export default class WallArtPlanner {
             return;
         }
 
+        const scale = this.scale || SCALE;
         this.boundaryMarquee.style.display = 'block';
-        this.boundaryMarquee.style.transform = `translate(${minX * SCALE}px, ${minY * SCALE}px)`;
-        this.boundaryMarquee.style.width = `${totalWidth * SCALE}px`;
-        this.boundaryMarquee.style.height = `${totalHeight * SCALE}px`;
+        this.boundaryMarquee.style.transform = `translate(${minX * scale}px, ${minY * scale}px)`;
+        this.boundaryMarquee.style.width = `${totalWidth * scale}px`;
+        this.boundaryMarquee.style.height = `${totalHeight * scale}px`;
         
         const dimensionElement = this.boundaryMarquee.querySelector('.boundary-dimension');
         if (dimensionElement) {

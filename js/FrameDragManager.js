@@ -160,15 +160,19 @@ export default class FrameDragManager {
         if (!this.isDragging) return;
         this.clearCollisionHighlights(); // Clear previous highlights
 
-        const wall = document.querySelector('.wall-canvas'); // TODO: Cache this if possible
+        const wall = (this.planner && this.planner.wallCanvas) || document.querySelector('.wall-canvas');
         if (!wall) {
             console.error("Wall canvas element not found in _moveFrame.");
             return;
         }
         const wallRect = wall.getBoundingClientRect();
 
-        let newX = (clientX - wallRect.left - this.dragStart.x) / SCALE;
-        let newY = (clientY - wallRect.top - this.dragStart.y) / SCALE;
+        // Convert pointer pixels to wall inches using the live canvas scale —
+        // the canvas is clamped to its container, so the fixed SCALE constant
+        // would desync the frame from the cursor
+        const scale = (this.planner && this.planner.scale) ? this.planner.scale : SCALE;
+        let newX = (clientX - wallRect.left - this.dragStart.x) / scale;
+        let newY = (clientY - wallRect.top - this.dragStart.y) / scale;
         
         console.log(`FDM _moveFrame (Frame ${this.frame.id}): Raw newX=${newX.toFixed(2)}, newY=${newY.toFixed(2)}`);
 

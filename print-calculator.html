@@ -20,7 +20,7 @@
     </nav>
 
     <div class="container">
-        <div class="controls-section">
+        <div class="calculator-container">
             <section>
                 <h3>Calculate Print Size from Total Frame Size</h3>
                 <p>Enter your desired total frame dimensions, mat width, and frame width to calculate the required print size.</p>
@@ -176,8 +176,10 @@
                     printDimensions.innerHTML += '<br><span style="color: red;">Warning: Frame and mat are too large for the total size. Reduce mat/frame width or increase total size.</span>';
                 }
 
-                // Update preview (dimensions.* are always inches)
-                const maxWidth = 300;
+                // Update preview (dimensions.* are always inches).
+                // Fit the preview to its container so it never overflows on phones.
+                const containerWidth = preview.parentElement ? preview.parentElement.clientWidth : 300;
+                const maxWidth = Math.max(150, Math.min(300, containerWidth));
                 const maxHeight = 300;
                 const totalWidthInches = dimensions.totalWidth;
                 const totalHeightInches = dimensions.totalHeight;
@@ -290,6 +292,13 @@
                 
                 // Redirect to index.html
                 window.location.href = 'index.html';
+            });
+
+            // Re-fit the preview when the viewport changes
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(updateDisplay, 150);
             });
 
             // Initialize display
