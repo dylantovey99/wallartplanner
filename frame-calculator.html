@@ -244,13 +244,8 @@
                 }
                 
                 // Store the frame data for the planner
-                console.log('Frame Calculator: Storing frame data:', frameData);
                 localStorage.setItem('newFrameData', JSON.stringify(frameData));
-                
-                // Debug: Verify data was stored
-                const storedData = localStorage.getItem('newFrameData');
-                console.log('Frame Calculator: Verified stored data:', storedData);
-                
+
                 // Redirect to index.html
                 window.location.href = 'index.html';
             });

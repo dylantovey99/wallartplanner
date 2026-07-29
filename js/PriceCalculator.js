@@ -100,16 +100,6 @@ class PriceCalculator {
                 const mat_size_cm = frame.mattWidth * 2.54;
                 const frame_type = getFrameType(frame.frameWidth);
 
-                console.log('Calculating price for frame:', {
-                    printWidth: frame.printWidth,
-                    printHeight: frame.printHeight,
-                    mattWidth: frame.mattWidth,
-                    frameWidth: frame.frameWidth,
-                    width_cm,
-                    length_cm,
-                    mat_size_cm,
-                    frame_type
-                });
 
                 const prices = calculateFrameAndPrintPrice(
                     width_cm,
@@ -118,7 +108,6 @@ class PriceCalculator {
                     frame_type
                 );
 
-                console.log('Calculated prices:', prices);
 
                 results.push({
                     collectionId: collection.id,

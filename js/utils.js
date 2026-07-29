@@ -29,6 +29,5 @@ export function mmToInches(mm) {
 
 export const DEFAULT_WALL = {
     width: 80, // inches
-    height: 80, // inches
-    color: '#f0f0f0'
+    height: 80 // inches
 };

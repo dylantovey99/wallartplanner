@@ -157,6 +157,10 @@ body {
 
 /* Wall controls */
 .wall-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
     margin-top: 10px;
     padding: 8px;
     background: var(--color-surface-alt);
@@ -176,11 +180,6 @@ body {
 .hide-all-control input[type="checkbox"] {
     margin: 0;
     cursor: pointer;
-}
-
-.wall-controls {
-    display: flex;
-    flex-wrap: wrap;
 }
 
 /* Hide frame controls and buttons when hide-icons is checked */
@@ -366,10 +365,6 @@ body {
     }
 }
 
-.move-icon {
-    display: none;
-}
-
 /* Image crop modal styles */
 .image-crop-modal .modal-content {
     max-width: 90%;
@@ -503,22 +498,6 @@ body {
     margin: 0;
 }
 
-/* Distance indicators */
-.distance-indicators > div {
-    position: absolute;
-    font-size: 12px;
-    color: var(--color-text-muted);
-    pointer-events: none;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 2px 4px;
-    border-radius: 2px;
-    z-index: 5;
-}
-
-.distance-left { left: -30px; top: 50%; transform: translateY(-50%); }
-.distance-right { right: -30px; top: 50%; transform: translateY(-50%); }
-.distance-top { top: -25px; left: 50%; transform: translateX(-50%); }
-.distance-bottom { bottom: -25px; left: 50%; transform: translateX(-50%); }
 
 /* Boundary marquee styles */
 .boundary-marquee {
@@ -1029,22 +1008,6 @@ input:checked + .slider:before {
     border-radius: 4px;
 }
 
-.add-to-planner {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    background: var(--color-success);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 20px;
-    font-size: 16px;
-}
-
-.add-to-planner:hover {
-    background: var(--color-success-hover);
-}
 
 /* Suggestion result styles */
 .suggestion-result {

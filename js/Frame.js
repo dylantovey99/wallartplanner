@@ -9,7 +9,6 @@ export default class Frame {
         this.id = data.id != null ? Number(data.id) : Frame.nextId++;
         if (this.id >= Frame.nextId) Frame.nextId = this.id + 1;
         this.planner = planner; // Store planner instance
-        console.log(`Creating frame ${this.id} with material ${frameMaterial}`, `Planner:`, planner);
 
         // Store exact values without rounding
         this.printWidth = Number(data.printWidth); // Expected in inches
@@ -29,23 +28,6 @@ export default class Frame {
         this.width = this.printWidth + (2 * this.mattWidth) + (2 * this.frameWidth);
         this.height = this.printHeight + (2 * this.mattWidth) + (2 * this.frameWidth);
 
-        // Add validation and detailed logging
-        this.validateDimensions();
-
-        console.log(`Frame ${this.id} dimensions:`, {
-            position: { x: this.x, y: this.y },
-            dimensions: {
-                width: this.width, // inches
-                height: this.height // inches
-            },
-            details: {
-                printWidth: this.printWidth, // inches
-                printHeight: this.printHeight, // inches
-                mattWidthCm: this.mattWidthCm, // cm
-                mattWidthInches: this.mattWidth, // inches
-                frameWidth: this.frameWidth // inches
-            }
-        });
 
         this.element = this.createFrameElement();
         // Pass planner to FrameDragManager constructor
@@ -55,56 +37,6 @@ export default class Frame {
         // Initial position update and event dispatch
         requestAnimationFrame(() => {
             this.updatePosition();
-        });
-    }
-
-    // Add this new method to validate dimensions
-    validateDimensions() {
-        // Check for NaN or invalid values
-        const dimensionProps = ['printWidth', 'printHeight', 'mattWidth', 'frameWidth', 'width', 'height', 'x', 'y'];
-        const invalid = dimensionProps.filter(prop => isNaN(this[prop]) || this[prop] === undefined);
-        
-        if (invalid.length > 0) {
-            console.error(`Frame ${this.id} has invalid dimensions:`, invalid);
-            // Set defaults for invalid properties to prevent calculation errors
-            invalid.forEach(prop => {
-                if (isNaN(this[prop]) || this[prop] === undefined) {
-                    this[prop] = 0;
-                    console.warn(`Set invalid property ${prop} to 0`);
-                }
-            });
-        }
-        
-        // Verify total width/height calculation
-        const expectedWidth = this.printWidth + (2 * this.mattWidth) + (2 * this.frameWidth);
-        const expectedHeight = this.printHeight + (2 * this.mattWidth) + (2 * this.frameWidth);
-        
-        if (Math.abs(this.width - expectedWidth) > 0.001 || Math.abs(this.height - expectedHeight) > 0.001) {
-            console.error(`Frame ${this.id} dimension mismatch:`, {
-                calculated: { width: this.width, height: this.height },
-                expected: { width: expectedWidth, height: expectedHeight }
-            });
-            
-            // Fix the dimensions
-            this.width = expectedWidth;
-            this.height = expectedHeight;
-        }
-        
-        console.log(`Frame ${this.id} validated dimensions:`, {
-            components: {
-                printWidth: this.printWidth,
-                printHeight: this.printHeight,
-                mattWidth: this.mattWidth,
-                frameWidth: this.frameWidth
-            },
-            total: {
-                width: this.width,
-                height: this.height
-            },
-            position: {
-                x: this.x,
-                y: this.y
-            }
         });
     }
 
@@ -123,12 +55,6 @@ export default class Frame {
                     <div class="frame-outer"></div>
                     <div class="frame-matt"></div>
                     <div class="frame-print"></div>
-                </div>
-                <div class="distance-indicators">
-                    <div class="distance-left"></div>
-                    <div class="distance-right"></div>
-                    <div class="distance-top"></div>
-                    <div class="distance-bottom"></div>
                 </div>
                 <div class="spacing-indicator">
                     <div class="spacing-value"></div>
@@ -677,7 +603,6 @@ export default class Frame {
             frameWidth: this.frameWidth
         };
 
-        console.log(`Frame ${this.id} dispatching frameMove event:`, eventDetail);
 
         // Update data attributes first
         this.element.dataset.x = String(this.x);
@@ -698,7 +623,6 @@ export default class Frame {
         const transformX = this.x * scale;
         const transformY = this.y * scale;
         
-        console.log(`Frame ${this.id} updatePosition CALLED: current this.x=${this.x}, this.y=${this.y}. Applying transform: translate(${transformX}px, ${transformY}px)`);
 
         this.element.style.transform = `translate(${transformX}px, ${transformY}px)`;
         
@@ -735,192 +659,4 @@ export default class Frame {
         }
     }
 
-    remove() {
-        console.log(`Frame ${this.id} remove() called.`);
-    
-        try {
-            // Dispatch event for data cleanup in parent classes
-            this.element.dispatchEvent(new CustomEvent('frameDelete', {
-                bubbles: true,
-                detail: { 
-                    frameId: this.id,
-                    collectionId: this.collection?.id  // Reference to parent collection
-                }
-            }));
-            
-            // Only remove DOM element if still attached
-            if (this.element && this.element.parentNode) {
-                this.element.parentNode.removeChild(this.element);
-                console.log(`Frame ${this.id} DOM element removed.`);
-            }
-            
-            // Nullify references to assist garbage collection
-            this.dragManager = null;
-            this.element = null;
-        } catch (error) {
-            console.error(`Error removing frame ${this.id}:`, error);
-        }
-    }
-
-    addBoundaryIndicator() {
-        console.log(`Adding boundary indicator to frame ${this.id}`);
-        
-        // Remove existing one if any
-        const existingIndicator = this.element.querySelector('.frame-boundary-indicator');
-        if (existingIndicator) existingIndicator.remove();
-
-        const boundaryElement = document.createElement('div');
-        boundaryElement.className = 'frame-boundary-indicator';
-        
-        Object.assign(boundaryElement.style, {
-            position: 'absolute',
-            inset: '0',
-            border: '2px dashed red',
-            pointerEvents: 'none',
-            zIndex: '9990', // Ensure it's above frame content but below other UI
-            boxSizing: 'border-box'
-        });
-        
-        const sizeLabel = document.createElement('div');
-        sizeLabel.className = 'boundary-size-label';
-        Object.assign(sizeLabel.style, {
-            position: 'absolute',
-            bottom: '-20px',
-            left: '0px',
-            background: 'rgba(255,255,255,0.85)',
-            padding: '2px 4px',
-            fontSize: '10px',
-            whiteSpace: 'nowrap',
-            border: '1px solid #ccc',
-            borderRadius: '3px'
-        });
-        
-        const expectedWidth = this.printWidth + (2 * this.mattWidth) + (2 * this.frameWidth);
-        const expectedHeight = this.printHeight + (2 * this.mattWidth) + (2 * this.frameWidth);
-        const actualWidth = this.width;
-        const actualHeight = this.height;
-        
-        const widthMatch = Math.abs(expectedWidth - actualWidth) < 0.01;
-        const heightMatch = Math.abs(expectedHeight - actualHeight) < 0.01;
-        
-        sizeLabel.textContent = `Calc: ${expectedWidth.toFixed(2)}" × ${expectedHeight.toFixed(2)}"`;
-        sizeLabel.style.color = (widthMatch && heightMatch) ? 'green' : 'red';
-        
-        boundaryElement.appendChild(sizeLabel);
-
-        if (!widthMatch || !heightMatch) {
-            const actualLabel = document.createElement('div');
-            actualLabel.className = 'actual-size-label';
-            Object.assign(actualLabel.style, {
-                position: 'absolute',
-                bottom: '-38px', // Position below the calculated label
-                left: '0px',
-                background: 'rgba(255,255,255,0.85)',
-                padding: '2px 4px',
-                fontSize: '10px',
-                color: 'blue',
-                border: '1px solid #ccc',
-                borderRadius: '3px',
-                whiteSpace: 'nowrap'
-            });
-            actualLabel.textContent = `Actual: ${actualWidth.toFixed(2)}" × ${actualHeight.toFixed(2)}"`;
-            boundaryElement.appendChild(actualLabel);
-        }
-        
-        const measureLabel = document.createElement('div');
-        measureLabel.className = 'measured-size-label';
-        Object.assign(measureLabel.style, {
-            position: 'absolute',
-            top: '-20px',
-            right: '0px',
-            background: 'rgba(255,255,255,0.85)',
-            padding: '2px 4px',
-            fontSize: '10px',
-            border: '1px solid #ccc',
-            borderRadius: '3px',
-            whiteSpace: 'nowrap'
-        });
-        
-        const renderedWidth = this.element.offsetWidth / SCALE;
-        const renderedHeight = this.element.offsetHeight / SCALE;
-        
-        measureLabel.textContent = `Rendered: ${renderedWidth.toFixed(2)}" × ${renderedHeight.toFixed(2)}"`;
-        measureLabel.style.color = (Math.abs(renderedWidth - expectedWidth) < 0.01 && 
-                                   Math.abs(renderedHeight - expectedHeight) < 0.01) ? 'green' : 'orange';
-        
-        boundaryElement.appendChild(measureLabel);
-        this.element.appendChild(boundaryElement);
-        return boundaryElement;
-    }
-
-    addComponentIndicators() {
-        console.log(`Adding component indicators to frame ${this.id}`);
-
-        // Remove existing one if any
-        const existingIndicators = this.element.querySelector('.component-indicators');
-        if (existingIndicators) existingIndicators.remove();
-        
-        const indicatorsContainer = document.createElement('div');
-        indicatorsContainer.className = 'component-indicators';
-        Object.assign(indicatorsContainer.style, {
-            position: 'absolute',
-            inset: '0',
-            pointerEvents: 'none',
-            zIndex: '9991' // Above boundary indicator
-        });
-        
-        const printIndicator = document.createElement('div');
-        printIndicator.className = 'print-indicator';
-        Object.assign(printIndicator.style, {
-            position: 'absolute',
-            inset: `${(this.frameWidth + this.mattWidth) * SCALE}px`,
-            border: '1px dotted blue',
-            boxSizing: 'border-box'
-        });
-        
-        const matIndicator = document.createElement('div');
-        matIndicator.className = 'mat-indicator';
-        Object.assign(matIndicator.style, {
-            position: 'absolute',
-            inset: `${this.frameWidth * SCALE}px`,
-            border: '1px dotted green',
-            boxSizing: 'border-box'
-        });
-        
-        const createLabel = (text, top, left, right, bottom, color = 'black') => {
-            const label = document.createElement('div');
-            Object.assign(label.style, {
-                position: 'absolute',
-                background: 'rgba(255,255,255,0.85)',
-                padding: '1px 3px',
-                fontSize: '9px',
-                border: '1px solid #ddd',
-                borderRadius: '2px',
-                color: color,
-                whiteSpace: 'nowrap'
-            });
-            if (top !== undefined) label.style.top = top;
-            if (left !== undefined) label.style.left = left;
-            if (right !== undefined) label.style.right = right;
-            if (bottom !== undefined) label.style.bottom = bottom;
-            label.textContent = text;
-            return label;
-        };
-
-        const printLabel = createLabel(`Print: ${this.printWidth}" × ${this.printHeight}"`, '2px', '2px', undefined, undefined, 'blue');
-        printIndicator.appendChild(printLabel);
-        
-        const matLabel = createLabel(`Mat: ${this.mattWidth.toFixed(2)}" (${(this.mattWidthCm).toFixed(1)}cm)`, '2px', undefined, '2px', undefined, 'green');
-        matIndicator.appendChild(matLabel);
-        
-        const frameLabel = createLabel(`Frame: ${this.frameWidth}" (${Math.round(this.frameWidth * 25.4)}mm)`, undefined, '2px', undefined, '2px', 'red');
-        // This label is attached to the main indicatorsContainer as it represents the outermost frame part
-        indicatorsContainer.appendChild(frameLabel);
-        
-        indicatorsContainer.appendChild(matIndicator); // Mat is on top of frame part
-        indicatorsContainer.appendChild(printIndicator); // Print is on top of mat
-        
-        this.element.appendChild(indicatorsContainer);
-        return indicatorsContainer;
-    }
 }

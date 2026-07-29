@@ -69,58 +69,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Core elements required for WallArtPlanner to instantiate
-    const corePlannerElements = [
-        'wallCanvas', 'wallWidth', 'wallHeight', 
-        'printWidth', 'printHeight', 'mattWidth', 'frameWidth', 'frameCount', 
-        'addCollection', 'collectionsLegend'
-        // Note: frameMaterialSelect is also used in WallArtPlanner constructor but might not be on all pages.
-        // The constructor has checks for these elements.
-    ];
-    const missingCoreElements = corePlannerElements.filter(id => !document.getElementById(id));
-    if (missingCoreElements.length > 0) {
-        // If on a page that isn't the main planner (e.g., calculators, order form),
-        // it's okay for some core planner elements to be missing.
-        // We only want to fatal error if we are on index.html and core elements are missing.
-        const isPlannerPage = window.location.pathname.endsWith('/') || window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('boundary-test.html');
-        if (isPlannerPage) {
-            console.error('FATAL: Missing core WallArtPlanner elements on a planner page, cannot initialize:', missingCoreElements);
-            return; // Stop initialization if core elements are missing on planner pages
-        } else {
-            console.warn('Non-planner page: Some core WallArtPlanner elements are missing, but this might be expected:', missingCoreElements);
-            // Do not initialize planner-specific features if not on planner page
-        }
-    }
-
-
-    // Initialize WallArtPlanner only if its essential DOM elements are present
-    let isPlannerContext = false; // Renamed from isPlannerInitialized for clarity
+    // Initialize WallArtPlanner only if its essential DOM elements are present.
+    // The same script loads on the calculators and order form, which have none.
+    let isPlannerContext = false;
     const wallCanvasForInit = document.getElementById('wallCanvas');
     const wallWidthForInit = document.getElementById('wallWidth');
 
     if (wallCanvasForInit && wallWidthForInit) {
-        console.log('Essential WallArtPlanner DOM elements found. Initializing WallArtPlanner.');
         window.planner = new WallArtPlanner();
-        isPlannerContext = true; // Set context true if planner is initialized
+        isPlannerContext = true;
     } else {
-        const onPlannerPage = window.location.pathname.endsWith('/') || window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('boundary-test.html');
+        const onPlannerPage = window.location.pathname.endsWith('/') || window.location.pathname.endsWith('index.html');
         if (onPlannerPage) {
             console.error("WallArtPlanner NOT initialized: Essential DOM elements (wallCanvas, wallWidth) are missing on a planner page.");
-        } else {
-            console.warn("WallArtPlanner not initialized: Essential DOM elements (wallCanvas, wallWidth) are missing. This might be expected on non-planner pages.");
         }
     }
 
     // Initialize SuggestionEngine if its essential DOM elements are present
-    const getSuggestionButtonForInit = document.getElementById('getSuggestion');
-    if (getSuggestionButtonForInit) {
-        console.log("Essential SuggestionEngine DOM element ('getSuggestion' button) found. Initializing SuggestionEngine.");
+    if (document.getElementById('getSuggestion')) {
         window.suggestionEngine = new SuggestionEngine();
-    } else {
-        // Don't log error if not on planner page, as it might be optional
-        if (isPlannerContext) { // Only warn if we are in a planner context but button is missing
-             console.warn("SuggestionEngine not initialized: 'getSuggestion' button is missing, though planner context is active.");
-        }
+    } else if (isPlannerContext) {
+        console.warn("SuggestionEngine not initialized: 'getSuggestion' button is missing, though planner context is active.");
     }
 
     // PriceCalculator can be initialized regardless, as it doesn't depend on DOM at construction.
@@ -135,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (getSuggestionButton && window.suggestionEngine && window.planner) {
         getSuggestionButton.addEventListener('click', () => {
-            // console.log('Get Suggestion button clicked');
             try {
                 // Get detailed frame data for suggestion engine
                 const detailedFrames = [];
@@ -172,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (applySuggestionButton && window.suggestionEngine && window.planner) { // Added window.planner check
         applySuggestionButton.addEventListener('click', () => {
-            // console.log('Apply Suggestion button clicked');
             try {
                 const printWidthInput = document.getElementById('printWidth');
                 const printHeightInput = document.getElementById('printHeight');
@@ -233,7 +200,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (calculatePriceButton && priceSummaryModal && priceSummaryContent && window.planner) {
         calculatePriceButton.addEventListener('click', () => {
-            // console.log('Calculate Price button clicked');
             try {
                 if (!window.planner.collections || window.planner.collections.length === 0) {
                     alert('Please add some frames first to calculate prices.');
@@ -283,7 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (newFrameDataString) {
         try {
             const data = JSON.parse(newFrameDataString);
-            console.log('Retrieved new frame data from calculator:', data);
             
             const printWidthInput = document.getElementById('printWidth');
             const printHeightInput = document.getElementById('printHeight');
@@ -334,7 +299,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 expandAddNewCollection();
                 localStorage.removeItem('newFrameData');
-                // console.log('Successfully pre-filled form fields from calculator data.');
             } else {
                  console.warn("Could not pre-fill from calculator data: one or more form elements for 'Add New Collection' are missing.");
             }
@@ -351,7 +315,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (screenshotButton && wallCanvasForInit && typeof html2canvas === 'function') { 
         screenshotButton.addEventListener('click', () => {
-            // console.log('Screenshot button clicked');
             const elementsToHideTemporarily = [];
             
             function hideElement(selector) {
@@ -431,7 +394,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     item.element.style.display = item.originalDisplay;
                 });
                 document.body.classList.remove('screenshot-mode');
-                console.log('Screenshot mode finished.');
             });
         });
     } else if (isPlannerContext && (!screenshotButton || !wallCanvasForInit)) {

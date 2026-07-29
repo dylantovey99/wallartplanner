@@ -9,7 +9,6 @@ export default class Collection {
         this.id = data.id != null ? Number(data.id) : Collection.nextId++;
         if (this.id >= Collection.nextId) Collection.nextId = this.id + 1;
         this.planner = planner; // Store planner instance
-        console.log(`Collection constructor (ID: ${this.id}) called. Data.count: ${data.count}. Intended frame count for this collection: ${Math.max(1, Math.round(Number(data.count)))}`, JSON.parse(JSON.stringify(data)));
         
         // Store exact values without rounding
         this.printWidth = Number(data.printWidth);
@@ -39,7 +38,6 @@ export default class Collection {
     createFrames() {
         // Get existing frames on the wall to avoid collisions using planner's live data
         const existingFramesFromPlanner = this.planner ? this.planner.getAllFrameObjects() : [];
-        console.log(`Collection ${this.id} createFrames - Initial existingFrames from planner:`, JSON.parse(JSON.stringify(existingFramesFromPlanner)));
 
         // data.mattWidth is already in CM from constructor, this.mattWidth is in inches.
         // For Frame constructor, we need mattWidth in CM.
@@ -56,18 +54,12 @@ export default class Collection {
             frameWidth: this.frameWidth // This is in inches
         };
         
-        console.log(`Collection ${this.id} createFrames - frameData for Frame constructor:`, JSON.parse(JSON.stringify(frameData)));
 
 
         // Calculate total dimensions for position generation with exact precision
         const totalWidth = this.printWidth + (2 * this.mattWidth) + (2 * this.frameWidth);
         const totalHeight = this.printHeight + (2 * this.mattWidth) + (2 * this.frameWidth);
 
-        console.log(`Collection ${this.id} creating frames with dimensions:`, {
-            totalWidth,
-            totalHeight,
-            frameData
-        });
 
         // planner.frameSpacing is the source of truth (the UI select feeds it)
         const spacing = this.planner ? Number(this.planner.frameSpacing) : 1;
@@ -101,7 +93,6 @@ export default class Collection {
             
             // If there's a collision, try to find a free spot
             if (collision) {
-                console.log(`Initial position for frame ${i + 1} has collision, finding alternative`);
                 
                 // Try different positions in a spiral pattern
                 const spiralPositions = this.generateSpiralPositions(maxCols, 5); // Try up to 5 rows in spiral
@@ -121,14 +112,12 @@ export default class Collection {
                         posX = testX;
                         posY = testY;
                         foundPosition = true;
-                        console.log(`Found alternative position at (${posX.toFixed(2)}, ${posY.toFixed(2)})`);
                         break;
                     }
                 }
                 
                 if (!foundPosition) {
                     // If no free position found, place at original position and let user adjust
-                    console.log(`No collision-free position found for frame ${i + 1}, using default`);
                 }
             }
             
@@ -137,7 +126,6 @@ export default class Collection {
                 y: Math.max(0, Math.min(posY, this.wallDimensions.height - totalHeight))
             };
 
-            console.log(`Collection ${this.id} creating frame ${i + 1}/${this.count} at position:`, position);
             // Pass planner instance to Frame constructor
             const frame = new Frame(frameData, position, this.color, this.wallDimensions, this.frameMaterial, this.planner);
             frame.collection = this; // Back-reference so frameDelete events can carry the collection id
@@ -153,9 +141,6 @@ export default class Collection {
             });
         }
 
-        console.log(`Collection ${this.id} created ${this.frames.length} frames with final positions:`, 
-            this.frames.map(f => ({ id: f.id, x: f.x, y: f.y }))
-        );
     }
     
     checkPositionCollision(x, y, width, height, existingFrames) {
@@ -172,11 +157,9 @@ export default class Collection {
                 otherFrame.y < (y + height + minDistance); // CORRECTED: otherFrame.y
 
             if (horizontalOverlap && verticalOverlap) {
-                console.log(`Collision DETECTED between new frame at (${x.toFixed(1)},${y.toFixed(1)}) w:${width.toFixed(1)} h:${height.toFixed(1)} and existing frame ${otherFrame.id} at (${otherFrame.x.toFixed(1)},${otherFrame.y.toFixed(1)}) w:${otherFrame.width.toFixed(1)} h:${otherFrame.height.toFixed(1)} with minDistance: ${minDistance}`);
                 return true;
             }
         }
-        console.log(`No collision for new frame at (${x.toFixed(1)},${y.toFixed(1)}) w:${width.toFixed(1)} h:${height.toFixed(1)} against ${existingFrames.length} existing frames with minDistance: ${minDistance}`);
         return false;
     }
     
@@ -220,7 +203,6 @@ export default class Collection {
     }
 
     restoreFrames(framesData) {
-        console.log(`Collection ${this.id} restoring frames from data:`, framesData);
         
         framesData.forEach((frameData, index) => {
             // mattWidth in collectionData (from WallArtPlanner's state.collections) is already in CM.
@@ -247,10 +229,8 @@ export default class Collection {
             }
             
             this.frames.push(frame);
-            console.log(`Collection ${this.id} restored frame ${index + 1}/${framesData.length} (ID: ${frame.id})`);
         });
 
-        console.log(`Collection ${this.id} restored ${this.frames.length} frames`);
     }
 
     serialize() {
@@ -294,28 +274,11 @@ export default class Collection {
         info.textContent = `${formatMeasurement(this.printWidth)} × ${formatMeasurement(this.printHeight)} (${this.frames.length} frames)`;
     }
 
-    deleteFrame(frame) {
-        const index = this.frames.indexOf(frame);
-        if (index > -1) {
-            console.log(`Collection ${this.id} removing frame ${frame.id}`);
-            this.frames.splice(index, 1);
-            frame.element.remove();
-            this.updateLegendCount();
-            
-            // If this was the last frame, remove the collection
-            if (this.frames.length === 0) {
-                console.log(`Collection ${this.id} is now empty, removing`);
-                this.element.dispatchEvent(new CustomEvent('collectionEmpty'));
-            }
-        }
-    }
 
     addToWall(wallElement) {
-        console.log(`Collection ${this.id} adding ${this.frames.length} frames to wall`);
 
         // Add each frame to the wall and immediately register its details
         this.frames.forEach((frame, index) => {
-            console.log(`Collection ${this.id} adding frame ${frame.id} (${index + 1}/${this.frames.length}) to wall`);
             wallElement.appendChild(frame.element);
             
             // Immediately dispatch frameMove event with initial position
@@ -345,7 +308,6 @@ export default class Collection {
     }
 
     remove() {
-        console.log(`Collection ${this.id} removing all frames`);
         this.frames.forEach(frame => frame.remove()); // Use Frame's remove method
         if (this.element && this.element.parentNode) {
             this.element.parentNode.removeChild(this.element);

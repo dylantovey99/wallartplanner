@@ -1,6 +1,5 @@
 import { DEFAULT_WALL, SCALE, mmToInches, formatMeasurement, createElement, cmToInches } from './utils.js';
 import Collection from './Collection.js';
-import BoundaryTester from './BoundaryTester.js';
 import DeletionManager from './DeletionManager.js';
 
 const BACKGROUND_IMAGE_FIXED_HEIGHT_METERS = 2.4;
@@ -9,7 +8,6 @@ const BACKGROUND_IMAGE_FIXED_HEIGHT_INCHES = BACKGROUND_IMAGE_FIXED_HEIGHT_METER
 
 export default class WallArtPlanner {
     constructor() {
-        console.log('Initializing WallArtPlanner');
         this.wall = { ...DEFAULT_WALL };
         // Wall dimensions are ALWAYS stored in inches; wallUnit only affects
         // how the width/height inputs and displays are presented ('in' | 'cm')
@@ -19,8 +17,6 @@ export default class WallArtPlanner {
         // stays correct when the canvas is clamped to its container or the viewport.
         this.scale = SCALE;
         this.collections = []; // Holds Collection objects, which hold Frame objects
-        this.frameDetails = new Map(); // Retained, as it might be used by other features or for event-driven optimizations.
-                                     // However, marquee will now primarily use getAllFrameObjects().
         this.frameSpacing = 1;
         this.deletionManager = new DeletionManager(this);
         
@@ -237,13 +233,9 @@ export default class WallArtPlanner {
                 if (!frameElement.classList.contains('frame') || !event.detail) return;
 
                 const frameId = frameElement.dataset.id || 'unknown';
-                console.log(`WallArtPlanner frameMove LISTENER: Frame ID ${frameId} moved. Event detail:`, JSON.parse(JSON.stringify(event.detail)));
                 
                 // It's crucial to check if the y-coordinate from the event detail matches what we expect
                 // or if it has already changed to the cascaded value.
-                console.log(`WallArtPlanner frameMove LISTENER: Frame ID ${frameId} - event.detail.y = ${event.detail.y}`);
-
-                this.frameDetails.set(frameElement, { ...event.detail });
 
                 this.scheduleMarqueeUpdate();
                 // frameMove fires per pointer event during drags — debounce the save
@@ -261,15 +253,12 @@ export default class WallArtPlanner {
                 const frameId = event.detail.frameId;
                 const collectionId = event.detail.collectionId;
                 
-                console.log(`WallArtPlanner received frameDelete event for frame ${frameId}`);
                 
                 // Use DeletionManager for reliable deletion
                 if (collectionId) {
                     this.deletionManager.deleteFrame(frameId, collectionId);
                 } else {
                     // Legacy fallback if collectionId not provided
-                    this.frameDetails.delete(event.target);
-                    
                     // Find the frame in collections and delete it
                     this.collections.forEach(collection => {
                         const frame = collection.frames.find(f => f.id === frameId);
@@ -422,7 +411,6 @@ export default class WallArtPlanner {
     loadSavedState() {
         const savedState = localStorage.getItem('wallArtPlannerState');
         if (!savedState) {
-            console.log("No saved state found, using default wall dimensions.");
             this.wall = { ...DEFAULT_WALL }; // Use new 80x80 default
             this.syncWallInputs();
             this.updateWallDisplay();
@@ -488,9 +476,8 @@ export default class WallArtPlanner {
                 if(this.frameCountInput) this.frameCountInput.value = this.newCollection.count;
             }
 
-            if (this.collectionsLegend) this.collectionsLegend.innerHTML = ''; 
-            this.collections = []; 
-            this.frameDetails.clear(); 
+            if (this.collectionsLegend) this.collectionsLegend.innerHTML = '';
+            this.collections = [];
 
             if (state.collections) {
                 state.collections.forEach(collectionData => {
@@ -641,21 +628,9 @@ export default class WallArtPlanner {
         }
 
         const liveFramesData = this.getAllFrameObjects();
-        console.log("------- BOUNDARY MARQUEE UPDATE -------");
-        console.log(`Total frames: ${liveFramesData.length}`);
         
         // Detailed frame data logging (kept from previous version)
         liveFramesData.forEach((frame, index) => {
-            console.log(`Frame ${index + 1} (ID: ${frame.id}):`, {
-                position: { x: frame.x, y: frame.y },
-                dimensions: { width: frame.width, height: frame.height },
-                bounds: {
-                    left: frame.x,
-                    right: frame.x + frame.width,
-                    top: frame.y,
-                    bottom: frame.y + frame.height
-                }
-            });
         });
         
         if (liveFramesData.length === 0) {
@@ -717,36 +692,10 @@ export default class WallArtPlanner {
         }
         
         // Add detailed debug info (NEW PART from Option 1)
-        console.log("Boundary calculation complete:", {
-            frames: validFrames.length,
-            coordinates: {
-                minX, maxX, minY, maxY,
-                width: totalWidth,
-                height: totalHeight
-            },
-            individualFrames: validFrames.map(f => ({
-                id: f.id,
-                x: f.x,
-                y: f.y,
-                width: f.width,
-                height: f.height,
-                right: f.x + f.width,
-                bottom: f.y + f.height
-            }))
-        });
         
-        // Preserve existing data attribute debug info
-        this.boundaryMarquee.dataset.debug = JSON.stringify({
-            frames: validFrames.length,
-            minX, maxX, minY, maxY,
-            width: totalWidth,
-            height: totalHeight,
-            timestamp: new Date().toISOString()
-        });
     }
 
     addCollection() {
-        console.log(`WallArtPlanner.addCollection() called. newCollection.count: ${this.newCollection.count}`, JSON.parse(JSON.stringify(this.newCollection)));
         const collection = new Collection({ ...this.newCollection }, this.wall, this); 
         const gridSize = this.gridSizeSelect ? Number(this.gridSizeSelect.value) : 0.5;
         
@@ -772,7 +721,6 @@ export default class WallArtPlanner {
     }
 
     saveState() {
-        console.log('Saving WallArtPlanner state...');
         try {
             // Verify no empty collections exist before saving
             const collectionsToSave = this.collections.filter(collection => 

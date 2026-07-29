@@ -6,7 +6,6 @@ export default class DeletionManager {
 
     // Single frame deletion with transaction-like behavior
     deleteFrame(frameId, collectionId) {
-        console.log(`DeletionManager: Deleting frame ${frameId} from collection ${collectionId}`);
         
         try {
             // 1. Find the frame and collection
@@ -33,9 +32,9 @@ export default class DeletionManager {
                 collection.frames.splice(frameIndex, 1);
             }
             
-            // 4. Remove from planner's frameDetails Map
-            this.planner.frameDetails.delete(frame.element);
-            
+            // 4. Detach the frame's drag listeners
+            if (frame.dragManager) frame.dragManager.destroy();
+
             // 5. Check if collection is now empty
             if (collection.frames.length === 0) {
                 this.deleteCollection(collectionId, false); // Don't save state yet
@@ -62,7 +61,6 @@ export default class DeletionManager {
     
     // Collection deletion
     deleteCollection(collectionId, saveState = true) {
-        console.log(`DeletionManager: Deleting collection ${collectionId}`);
         
         try {
             const collection = this.planner.collections.find(c => c.id === collectionId);
@@ -71,12 +69,12 @@ export default class DeletionManager {
                 return false;
             }
             
-            // 1. Remove all frames' DOM elements
+            // 1. Remove all frames' DOM elements and their drag listeners
             collection.frames.forEach(frame => {
+                if (frame.dragManager) frame.dragManager.destroy();
                 if (frame.element && frame.element.parentNode) {
                     frame.element.parentNode.removeChild(frame.element);
                 }
-                this.planner.frameDetails.delete(frame.element);
             });
             
             // 2. Remove collection from planner's collections array
@@ -109,9 +107,15 @@ export default class DeletionManager {
     
     // Delete all frames and collections
     deleteAll(includeBackgroundImage = true) {
-        console.log("DeletionManager: Deleting all frames and collections");
         
         try {
+            // 0. Detach drag listeners before dropping the object graph
+            this.planner.collections.forEach(collection => {
+                collection.frames.forEach(frame => {
+                    if (frame.dragManager) frame.dragManager.destroy();
+                });
+            });
+
             // 1. Remove all frame DOM elements
             document.querySelectorAll('.frame').forEach(el => {
                 if (el && el.parentNode) {
@@ -128,9 +132,6 @@ export default class DeletionManager {
             
             // 3. Clear planner's collections array
             this.planner.collections = [];
-            
-            // 4. Clear planner's frameDetails Map
-            this.planner.frameDetails.clear();
             
             // 5. Reset background image if requested
             if (includeBackgroundImage && this.planner.wallBackgroundImage) {

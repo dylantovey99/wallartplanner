@@ -18,7 +18,6 @@ export default class FrameDragManager {
         this.handleTouchMove = this.handleTouchMove.bind(this);
         this.handleTouchEnd = this.handleTouchEnd.bind(this);
 
-        console.log(`FrameDragManager initialized for frame ${this.frame.id}`, `Planner:`, planner);
     }
     
     isWithinBounds(x, y, width, height) {
@@ -29,10 +28,26 @@ export default class FrameDragManager {
     }
 
     setupDragListeners() {
-        // Mouse events
-        this.frame.element.addEventListener('mousedown', this.handleMouseDown.bind(this));
-        // Touch events
-        this.frame.element.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false }); // Use passive: false to allow preventDefault
+        // Keep the bound references so destroy() can remove them
+        this.handleMouseDownBound = this.handleMouseDown.bind(this);
+        this.handleTouchStartBound = this.handleTouchStart.bind(this);
+        this.frame.element.addEventListener('mousedown', this.handleMouseDownBound);
+        this.frame.element.addEventListener('touchstart', this.handleTouchStartBound, { passive: false }); // Use passive: false to allow preventDefault
+    }
+
+    // Detach every listener this manager registered (called when the frame is deleted)
+    destroy() {
+        if (this.frame && this.frame.element) {
+            if (this.handleMouseDownBound) this.frame.element.removeEventListener('mousedown', this.handleMouseDownBound);
+            if (this.handleTouchStartBound) this.frame.element.removeEventListener('touchstart', this.handleTouchStartBound);
+        }
+        // In case the frame is deleted mid-drag
+        document.removeEventListener('mousemove', this.handleMouseMove);
+        document.removeEventListener('mouseup', this.handleMouseUp);
+        document.removeEventListener('touchmove', this.handleTouchMove);
+        document.removeEventListener('touchend', this.handleTouchEnd);
+        document.removeEventListener('touchcancel', this.handleTouchEnd);
+        this.isDragging = false;
     }
 
     _startDrag(clientX, clientY) {
@@ -44,7 +59,6 @@ export default class FrameDragManager {
         };
         this.originalPosition = { x: this.frame.x, y: this.frame.y }; // Store position at drag start
 
-        console.log(`Frame ${this.frame.id} drag started at:`, this.dragStart, `Original pos:`, this.originalPosition);
 
         this.frame.element.classList.add('dragging');
 
@@ -73,11 +87,9 @@ export default class FrameDragManager {
 
     snapToGrid(value) {
         if (this.gridSize === 0) {
-            // console.log(`Frame ${this.frame.id} no snapping (grid size: 0), value: ${value.toFixed(2)}`);
             return value; // No snapping if gridSize is 0
         }
         const snapped = Math.round(value / this.gridSize) * this.gridSize;
-        // console.log(`Frame ${this.frame.id} snapping ${value.toFixed(2)} to ${snapped.toFixed(2)} (grid size: ${this.gridSize})`);
         return snapped;
     }
 
@@ -148,7 +160,6 @@ export default class FrameDragManager {
                 minPushX = pushX; 
                 minPushY = pushY;
                 
-                // console.log(`Frame ${this.frame.id} collision with ${otherFrame.id}. OverlapX: ${overlapX.toFixed(2)}, OverlapY: ${overlapY.toFixed(2)}. Push: X=${pushX.toFixed(2)}, Y=${pushY.toFixed(2)}`);
                 break; // Handle one collision at a time for now
             }
         }
@@ -174,16 +185,13 @@ export default class FrameDragManager {
         let newX = (clientX - wallRect.left - this.dragStart.x) / scale;
         let newY = (clientY - wallRect.top - this.dragStart.y) / scale;
         
-        console.log(`FDM _moveFrame (Frame ${this.frame.id}): Raw newX=${newX.toFixed(2)}, newY=${newY.toFixed(2)}`);
 
         let snappedX = this.snapToGrid(newX);
         let snappedY = this.snapToGrid(newY);
         
-        console.log(`FDM _moveFrame (Frame ${this.frame.id}): Snapped snappedX=${snappedX.toFixed(2)}, snappedY=${snappedY.toFixed(2)}`);
 
         // Initial boundary check for the snapped position
         if (!this.isWithinBounds(snappedX, snappedY, this.frame.width, this.frame.height)) {
-            console.log(`FDM _moveFrame (Frame ${this.frame.id}): Snapped position OUT OF BOUNDS. Clamping.`);
             const maxX = this.wallDimensions.width - this.frame.width;
             const maxY = this.wallDimensions.height - this.frame.height;
             snappedX = Math.max(0, Math.min(snappedX, maxX));
@@ -191,62 +199,49 @@ export default class FrameDragManager {
             // Re-snap after clamping, in case clamping moved it off-grid (if gridSize > 0)
             snappedX = this.snapToGrid(snappedX);
             snappedY = this.snapToGrid(snappedY);
-            console.log(`FDM _moveFrame (Frame ${this.frame.id}): Clamped and re-snapped: snappedX=${snappedX.toFixed(2)}, snappedY=${snappedY.toFixed(2)}`);
         }
         
         // Get other frames using planner's live data
         const otherFrames = this.planner ? this.planner.getAllFrameObjects().filter(f => f.id !== String(this.frame.id)) : [];
         const collisionResult = this.checkCollision(snappedX, snappedY, String(this.frame.id), otherFrames);
         
-        console.log(`FDM _moveFrame (Frame ${this.frame.id}): Collision check with (snappedX=${snappedX.toFixed(2)}, snappedY=${snappedY.toFixed(2)}). Result: collides=${collisionResult.collides}, pushX=${collisionResult.pushX.toFixed(2)}, pushY=${collisionResult.pushY.toFixed(2)}`);
 
         if (collisionResult.collides) {
-            console.log(`FDM _moveFrame (Frame ${this.frame.id}): Collision detected. Original pos before push attempt: x=${this.originalPosition.x.toFixed(2)}, y=${this.originalPosition.y.toFixed(2)}`);
             // Attempt to push the frame
             let pushedX = snappedX + collisionResult.pushX;
             let pushedY = snappedY + collisionResult.pushY;
-            console.log(`FDM _moveFrame (Frame ${this.frame.id}): Attempting push to: pushedX=${pushedX.toFixed(2)}, pushedY=${pushedY.toFixed(2)} (before snap)`);
 
             // Snap the pushed position
             pushedX = this.snapToGrid(pushedX);
             pushedY = this.snapToGrid(pushedY);
-            console.log(`FDM _moveFrame (Frame ${this.frame.id}): Pushed and snapped to: pushedX=${pushedX.toFixed(2)}, pushedY=${pushedY.toFixed(2)}`);
 
             // Check if pushed position is valid (within bounds and no new collisions)
             if (this.isWithinBounds(pushedX, pushedY, this.frame.width, this.frame.height)) {
-                console.log(`FDM _moveFrame (Frame ${this.frame.id}): Pushed position IS WITHIN BOUNDS.`);
                 const newCollision = this.checkCollision(pushedX, pushedY, String(this.frame.id), otherFrames);
-                console.log(`FDM _moveFrame (Frame ${this.frame.id}): Collision check for pushed pos. Result: collides=${newCollision.collides}`);
                 if (!newCollision.collides) {
                     // Pushed position is valid
-                    console.log(`FDM _moveFrame (Frame ${this.frame.id}): Pushed position is VALID (no new collision). Setting frame to x=${pushedX.toFixed(2)}, y=${pushedY.toFixed(2)}`);
                     this.frame.x = pushedX;
                     this.frame.y = pushedY;
                 } else {
                     // Pushed position still collides, revert to original position for this interval
-                    console.log(`FDM _moveFrame (Frame ${this.frame.id}): Pushed position STILL COLLIDES. Reverting to originalPosition: x=${this.originalPosition.x.toFixed(2)}, y=${this.originalPosition.y.toFixed(2)}`);
                     this.frame.x = this.originalPosition.x;
                     this.frame.y = this.originalPosition.y;
                     this.highlightCollision(this.frame.element, collisionResult.collidingFrame.element);
                 }
             } else {
                 // Pushed position is out of bounds, revert
-                console.log(`FDM _moveFrame (Frame ${this.frame.id}): Pushed position OUT OF BOUNDS. Reverting to originalPosition: x=${this.originalPosition.x.toFixed(2)}, y=${this.originalPosition.y.toFixed(2)}`);
                 this.frame.x = this.originalPosition.x;
                 this.frame.y = this.originalPosition.y;
                 this.highlightCollision(this.frame.element, collisionResult.collidingFrame.element);
             }
         } else {
             // No collision, move to snapped position
-            console.log(`FDM _moveFrame (Frame ${this.frame.id}): NO COLLISION. Setting frame to snapped: x=${snappedX.toFixed(2)}, y=${snappedY.toFixed(2)}`);
             this.frame.x = snappedX;
             this.frame.y = snappedY;
         }
         
-        console.log(`FDM _moveFrame (Frame ${this.frame.id}): Final frame pos before updatePosition: x=${this.frame.x.toFixed(2)}, y=${this.frame.y.toFixed(2)}`);
         this.frame.updatePosition();
         this.originalPosition = { x: this.frame.x, y: this.frame.y }; // Update original for next interval
-        console.log(`FDM _moveFrame (Frame ${this.frame.id}): Updated originalPosition for next interval: x=${this.originalPosition.x.toFixed(2)}, y=${this.originalPosition.y.toFixed(2)}`);
     }
 
     handleMouseMove(e) {
@@ -281,7 +276,6 @@ export default class FrameDragManager {
             const finalY = this.snapToGrid(this.frame.y);
             
             if (Math.abs(finalX - this.frame.x) > EPSILON || Math.abs(finalY - this.frame.y) > EPSILON) {
-                // console.log(`Frame ${this.frame.id} snapping to final position on drag end:`, {
                 //     x: finalX.toFixed(2),
                 //     y: finalY.toFixed(2)
                 // });
@@ -294,7 +288,6 @@ export default class FrameDragManager {
             }
 
 
-            // console.log(`Frame ${this.frame.id} drag ended at:`, {
             //     x: this.frame.x.toFixed(2),
             //     y: this.frame.y.toFixed(2)
             // });
@@ -322,14 +315,12 @@ export default class FrameDragManager {
             this.gridSize = newGridSize;
         }
         
-        // console.log(`Frame ${this.frame.id} grid size changing from ${prevGridSize} to ${this.gridSize} (input was ${size})`);
         
         if (this.frame) { // Snap current position to new grid if gridSize is not 0
             const snappedX = this.snapToGrid(this.frame.x);
             const snappedY = this.snapToGrid(this.frame.y);
             
             if (Math.abs(snappedX - this.frame.x) > EPSILON || Math.abs(snappedY - this.frame.y) > EPSILON) {
-                // console.log(`Frame ${this.frame.id} snapping to new grid:`, {
                 //     x: snappedX.toFixed(2),
                 //     y: snappedY.toFixed(2)
                 // });
@@ -345,6 +336,5 @@ export default class FrameDragManager {
         const newDist = Number(distance);
         // Ensure minDistance is always positive. If input results in 0, NaN, or negative, default to 1.
         this.minDistance = (newDist > 0) ? newDist : 1; 
-        console.log(`Frame ${this.frame.id} minimum distance changing from ${prevMinDistance} to ${this.minDistance} (input was ${distance}, processed to ${newDist})`);
     }
 }

@@ -237,28 +237,6 @@
         </div>
     </div>
 
-    <!-- Frame Template -->
-    <template id="frameTemplate">
-        <div class="frame">
-            <div class="frame-dimensions"></div>
-            <div class="frame-controls">
-                <button class="delete-btn">×</button>
-                <button class="frame-info-btn" title="View frame details">?</button>
-            </div>
-            <div class="frame-layers">
-                <div class="frame-outer"></div>
-                <div class="frame-matt"></div>
-                <div class="frame-print"></div>
-            </div>
-            <div class="distance-indicators">
-                <div class="distance-left"></div>
-                <div class="distance-right"></div>
-                <div class="distance-top"></div>
-                <div class="distance-bottom"></div>
-            </div>
-        </div>
-    </template>
-
     <!-- Frame Info Modal -->
     <div id="frameInfoModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="frameInfoModalTitle">
         <div class="modal-content">
@@ -298,14 +276,7 @@
             <a href="https://www.brilliantprints.com.au" rel="noopener">Contact the Brilliant Prints team</a>.</p>
     </footer>
 
-    <!-- Load JavaScript files -->
-    <script src="js/utils.js" type="module"></script>
-    <script src="js/Frame.js" type="module"></script>
-    <script src="js/FrameDragManager.js" type="module"></script>
-    <script src="js/Collection.js" type="module"></script>
-    <script src="js/SuggestionEngine.js" type="module"></script>
-    <script src="js/PriceCalculator.js" type="module"></script>
-    <script src="js/WallArtPlanner.js" type="module"></script>
+    <!-- main.js imports every other module -->
     <script src="js/main.js" type="module"></script>
 </body>
 </html>
