@@ -74,9 +74,16 @@ export default class Collection {
         const existingFrames = [...existingFramesFromPlanner]; // Create a mutable copy for this collection's placement logic
 
 
-        // Calculate grid cells for more organized placement
-        const gridCellWidth = totalWidth + spacing;
-        const gridCellHeight = totalHeight + spacing;
+        // Calculate grid cells for more organized placement.
+        // Round the cell size UP to a multiple of the movement grid: frames get
+        // snapped to that grid after placement, and an exact totalWidth+spacing
+        // cell can snap into a gap slightly under the minimum spacing — which
+        // leaves every frame in a resting collision state that blocks dragging.
+        const gridSizeVal = this.planner && this.planner.gridSizeSelect
+            ? Number(this.planner.gridSizeSelect.value) : 0.5;
+        const snapUp = (v) => gridSizeVal > 0 ? Math.ceil(v / gridSizeVal) * gridSizeVal : v;
+        const gridCellWidth = snapUp(totalWidth + spacing);
+        const gridCellHeight = snapUp(totalHeight + spacing);
         // A frame wider than the wall would make maxCols 0 and i % 0 produce NaN positions
         const maxCols = Math.max(1, Math.floor((this.wallDimensions.width - spacing) / gridCellWidth));
 
