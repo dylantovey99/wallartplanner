@@ -8,17 +8,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
-    <!-- Beta Warning -->
-    <div style="background-color: #ffeb3b; color: #333; padding: 8px; text-align: center; font-size: 14px; font-weight: bold; width: 100%;">
-        This Wall art collection tool is a beta product, please cross-verify any results with BPro staff prior to placing a real order.
+    <!-- Beta notice -->
+    <div class="site-banner" role="note">
+        Beta preview — the Brilliant Prints team will confirm all sizes and pricing with you before any order is placed.
     </div>
-    
+
     <!-- Navigation -->
     <nav class="nav-bar">
+        <a href="index.html" class="nav-brand">Brilliant Prints</a>
         <a href="index.html" class="nav-link active">Wall Art Planner</a>
         <a href="frame-calculator.html" class="nav-link">Frame Size Calculator</a>
         <a href="print-calculator.html" class="nav-link">Print Size Calculator</a>
     </nav>
+
+    <h1 class="page-title">Wall Art Planner</h1>
 
     <div class="container">
         <!-- Wall Canvas -->
@@ -28,7 +31,7 @@
                 <span class="wall-height-display">Height: 96.0"</span>
             </div>
             <div class="wall-canvas" id="wallCanvas">
-                <img id="wallBackgroundImage" src="#" alt="Wall Background" style="display: none;">
+                <img id="wallBackgroundImage" alt="" style="display: none;">
             </div>
             <div class="wall-controls">
                 <label class="hide-icons-control">
@@ -49,15 +52,15 @@
                 <h2>Wall Dimensions</h2>
                 <div class="section-content">
                     <div class="input-row">
-                        <label>Width (inches)</label>
+                        <label for="wallWidth">Width (inches)</label>
                         <input type="number" id="wallWidth" value="120" min="24" max="600" step="0.1">
                     </div>
                     <div class="input-row">
-                        <label>Height (inches)</label>
+                        <label for="wallHeight">Height (inches)</label>
                         <input type="number" id="wallHeight" value="96" min="24" max="600" step="0.1">
                     </div>
                     <div class="input-row">
-                        <label title="Controls how frames snap when moving. Smaller values allow for more precise positioning, larger values make it easier to align frames.">Movement Snap Size (inches)</label>
+                        <label for="gridSize" title="Controls how frames snap when moving. Smaller values allow for more precise positioning, larger values make it easier to align frames.">Movement Snap Size (inches)</label>
                         <select id="gridSize">
                             <option value="0.25">0.25" (Fine)</option>
                             <option value="0.5" selected>0.5" (Default)</option>
@@ -67,7 +70,7 @@
                         <p class="help-text">Controls how precisely frames can be positioned. Smaller values allow for finer adjustments, while larger values make it easier to align frames to even increments.</p>
                     </div>
                     <div class="input-row">
-                        <label title="Controls the minimum distance between frames on the wall.">Minimum Frame Spacing (inches)</label>
+                        <label for="frameSpacing" title="Controls the minimum distance between frames on the wall.">Minimum Frame Spacing (inches)</label>
                         <select id="frameSpacing">
                             <option value="0.25">0.25" (Minimal)</option>
                             <option value="1" selected>1" (Default)</option>
@@ -91,19 +94,19 @@
                 <h2>Add New Collection</h2>
                 <div class="section-content">
                     <div class="input-row">
-                        <label>Print Width (inches)</label>
+                        <label for="printWidth">Print Width (inches)</label>
                         <input type="number" id="printWidth" value="16" step="0.1" min="1" max="100">
                     </div>
                     <div class="input-row">
-                        <label>Print Height (inches)</label>
+                        <label for="printHeight">Print Height (inches)</label>
                         <input type="number" id="printHeight" value="20" step="0.1" min="1" max="100">
                     </div>
                     <div class="input-row">
-                        <label>Matt Width (cm)</label>
+                        <label for="mattWidth">Matt Width (cm)</label>
                         <input type="number" id="mattWidth" value="5" step="0.1" min="0" max="20">
                     </div>
                     <div class="input-row">
-                        <label>Frame Width</label>
+                        <label for="frameWidth">Frame Width</label>
                         <select id="frameWidth">
                             <option value="20">20mm (0.79")</option>
                             <option value="30">30mm (1.18")</option>
@@ -111,7 +114,7 @@
                         </select>
                     </div>
                     <div class="input-row">
-                        <label>Frame Material</label>
+                        <label for="frameMaterial">Frame Material</label>
                         <select id="frameMaterial">
                             <option value="black">Black</option>
                             <option value="white">White</option>
@@ -120,7 +123,7 @@
                         </select>
                     </div>
                     <div class="input-row">
-                        <label>Number of Frames</label>
+                        <label for="frameCount">Number of Frames</label>
                         <input type="number" id="frameCount" value="1" min="1">
                     </div>
                     <button id="addCollection" class="btn-primary">+ Add Collection</button>
@@ -133,14 +136,14 @@
                 <div class="section-content">
                     <p class="suggestion-info">Get suggestions for a complementary frame size based on your current layout. The suggested size will match the dimensions of your existing frame arrangement, accounting for matting and frame width to ensure proper spacing and visual balance.</p>
                     <div class="input-row">
-                        <label title="Choose whether to match the width or height of your current frame arrangement">Match Dimension</label>
+                        <label for="matchDimension" title="Choose whether to match the width or height of your current frame arrangement">Match Dimension</label>
                         <select id="matchDimension">
                             <option value="width">Match Width</option>
                             <option value="height">Match Height</option>
                         </select>
                     </div>
                     <div class="input-row">
-                        <label title="Choose the orientation for the suggested frame">Print Orientation</label>
+                        <label for="printOrientation" title="Choose the orientation for the suggested frame">Print Orientation</label>
                         <select id="printOrientation">
                             <option value="auto">Auto (Match Layout)</option>
                             <option value="portrait">Portrait</option>
@@ -148,7 +151,7 @@
                         </select>
                     </div>
                     <div class="input-row">
-                        <label title="Select the desired proportions for the suggested frame">Desired Aspect Ratio</label>
+                        <label for="aspectRatio" title="Select the desired proportions for the suggested frame">Desired Aspect Ratio</label>
                         <select id="aspectRatio">
                             <option value="1">1:1 (Square)</option>
                             <option value="1.33">4:3 (Standard)</option>
@@ -159,11 +162,11 @@
                     </div>
                     <div id="customRatioInputs" class="custom-ratio hidden">
                         <div class="input-row">
-                            <label>Width Ratio</label>
+                            <label for="customRatioWidth">Width Ratio</label>
                             <input type="number" id="customRatioWidth" min="1" step="1">
                         </div>
                         <div class="input-row">
-                            <label>Height Ratio</label>
+                            <label for="customRatioHeight">Height Ratio</label>
                             <input type="number" id="customRatioHeight" min="1" step="1">
                         </div>
                     </div>
@@ -228,10 +231,10 @@
     </template>
 
     <!-- Frame Info Modal -->
-    <div id="frameInfoModal" class="modal">
+    <div id="frameInfoModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="frameInfoModalTitle">
         <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <h3 class="modal-title">Frame Details</h3>
+            <button type="button" class="modal-close" aria-label="Close">&times;</button>
+            <h3 class="modal-title" id="frameInfoModalTitle">Frame Details</h3>
             <div class="modal-detail">
                 <span class="modal-label">Print Size:</span>
                 <span class="modal-value print-size"></span>
@@ -252,10 +255,10 @@
     </div>
 
     <!-- Price Summary Modal -->
-    <div id="priceSummaryModal" class="modal">
+    <div id="priceSummaryModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="priceSummaryModalTitle">
         <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <h3 class="modal-title">Collection Price Summary</h3>
+            <button type="button" class="modal-close" aria-label="Close">&times;</button>
+            <h3 class="modal-title" id="priceSummaryModalTitle">Collection Price Summary</h3>
             <div id="priceSummaryContent"></div>
         </div>
     </div>

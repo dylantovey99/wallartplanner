@@ -38,11 +38,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Initialize collapsible sections
+    // Initialize collapsible sections (click + keyboard operable)
     document.querySelectorAll('.controls-section section h2').forEach(header => {
-        header.addEventListener('click', () => {
-            const section = header.closest('section');
+        const section = header.closest('section');
+        header.setAttribute('role', 'button');
+        header.setAttribute('tabindex', '0');
+        header.setAttribute('aria-expanded', String(!section.classList.contains('collapsed')));
+
+        const toggleSection = () => {
             section.classList.toggle('collapsed');
+            header.setAttribute('aria-expanded', String(!section.classList.contains('collapsed')));
+        };
+
+        header.addEventListener('click', toggleSection);
+        header.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleSection();
+            }
+        });
+    });
+
+    // Close any open modal with Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        document.querySelectorAll('.modal').forEach(modal => {
+            if (modal.style.display === 'block') {
+                modal.style.display = 'none';
+            }
         });
     });
 
@@ -250,6 +273,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                         ?.closest('section');
         if (addNewCollectionSection) {
             addNewCollectionSection.classList.remove('collapsed');
+            const header = addNewCollectionSection.querySelector('h2');
+            if (header) header.setAttribute('aria-expanded', 'true');
         }
     };
 

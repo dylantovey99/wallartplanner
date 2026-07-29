@@ -115,9 +115,9 @@ export default class Frame {
                     ${formatMeasurement(this.width)} × ${formatMeasurement(this.height)}
                 </div>
                 <div class="frame-controls">
-                    <button class="delete-btn">×</button>
-                    <button class="frame-info-btn" title="View frame details">?</button>
-                    <button class="photo-upload-btn" title="Upload image">📷</button>
+                    <button type="button" class="delete-btn" aria-label="Delete frame" title="Delete frame">×</button>
+                    <button type="button" class="frame-info-btn" aria-label="View frame details" title="View frame details">?</button>
+                    <button type="button" class="photo-upload-btn" aria-label="Add a photo to this frame" title="Add a photo to this frame">📷</button>
                 </div>
                 <div class="frame-layers">
                     <div class="frame-outer"></div>
@@ -255,8 +255,10 @@ export default class Frame {
         const modalContent = document.createElement('div');
         modalContent.className = 'modal-content image-crop-content';
 
-        const closeBtn = document.createElement('span');
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
         closeBtn.className = 'modal-close';
+        closeBtn.setAttribute('aria-label', 'Close');
         closeBtn.innerHTML = '&times;';
 
         const title = document.createElement('h3');
@@ -561,6 +563,23 @@ export default class Frame {
                 modal.remove();
             }
         });
+
+        // Close with Escape (and clean up drag listeners)
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && document.body.contains(modal)) {
+                removeImageDragListeners();
+                modal.remove();
+            }
+            if (!document.body.contains(modal)) {
+                document.removeEventListener('keydown', handleEscape);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+
+        // Dialog semantics + initial focus for keyboard users
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        closeBtn.focus();
     }
     
     applyThumbnailImage(imageUrl) {
