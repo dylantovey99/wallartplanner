@@ -43,7 +43,7 @@ export default class DeletionManager {
             
             // 6. Update UI
             collection.updateLegendCount();
-            requestAnimationFrame(() => this.planner.updateBoundaryMarquee());
+            this.planner.scheduleMarqueeUpdate();
             
             // 7. Save state to localStorage
             this.planner.saveState();
@@ -91,7 +91,7 @@ export default class DeletionManager {
             }
             
             // 4. Update UI
-            requestAnimationFrame(() => this.planner.updateBoundaryMarquee());
+            this.planner.scheduleMarqueeUpdate();
             
             // 5. Save state if requested
             if (saveState) {
@@ -145,7 +145,7 @@ export default class DeletionManager {
                 this.planner.collectionsLegend.innerHTML = '';
             }
             
-            requestAnimationFrame(() => this.planner.updateBoundaryMarquee());
+            this.planner.scheduleMarqueeUpdate();
             
             // 7. Save state to localStorage
             this.planner.saveState();

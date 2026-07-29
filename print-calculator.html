@@ -127,9 +127,10 @@
             }
 
             function calculatePrintSize() {
-                // Convert all dimensions to inches for calculation
-                const totalWidthInches = useMetric ? dimensions.totalWidth / 2.54 : dimensions.totalWidth;
-                const totalHeightInches = useMetric ? dimensions.totalHeight / 2.54 : dimensions.totalHeight;
+                // dimensions.totalWidth/totalHeight are ALWAYS stored in inches
+                // (handleInputChange converts metric input on the way in) — do not convert again
+                const totalWidthInches = dimensions.totalWidth;
+                const totalHeightInches = dimensions.totalHeight;
                 const matWidthInches = dimensions.matWidth / 2.54; // Convert cm to inches
                 
                 // Calculate print dimensions by subtracting mat and frame from total
@@ -175,11 +176,11 @@
                     printDimensions.innerHTML += '<br><span style="color: red;">Warning: Frame and mat are too large for the total size. Reduce mat/frame width or increase total size.</span>';
                 }
 
-                // Update preview
+                // Update preview (dimensions.* are always inches)
                 const maxWidth = 300;
                 const maxHeight = 300;
-                const totalWidthInches = useMetric ? dimensions.totalWidth / 2.54 : dimensions.totalWidth;
-                const totalHeightInches = useMetric ? dimensions.totalHeight / 2.54 : dimensions.totalHeight;
+                const totalWidthInches = dimensions.totalWidth;
+                const totalHeightInches = dimensions.totalHeight;
                 const matWidthInches = dimensions.matWidth / 2.54;
                 
                 const scale = Math.min(

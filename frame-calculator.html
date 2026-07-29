@@ -103,9 +103,22 @@
             const addToPlannerBtn = document.getElementById('addToPlanner');
 
             unitToggle.addEventListener('change', (e) => {
+                const previousUnit = currentUnit;
                 currentUnit = e.target.checked ? 'cm' : 'inch';
                 unitLabel.textContent = currentUnit === 'inch' ? 'Inches' : 'Centimeters';
                 Array.from(unitTexts).forEach(span => span.textContent = currentUnit);
+                // Convert the entered values so 8×10 inches becomes 20.3×25.4 cm
+                // instead of being silently reinterpreted as 8×10 cm
+                if (previousUnit !== currentUnit) {
+                    [printWidth, printHeight].forEach(input => {
+                        const value = parseFloat(input.value);
+                        if (!isNaN(value)) {
+                            input.value = currentUnit === 'cm'
+                                ? (value * 2.54).toFixed(1)
+                                : (value / 2.54).toFixed(2);
+                        }
+                    });
+                }
                 updateFrameSizeLabels();
                 calculateDimensions();
             });

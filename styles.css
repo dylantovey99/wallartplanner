@@ -632,6 +632,38 @@ section.collapsed .section-content {
     display: none !important;
 }
 
+/* Storage warning banner (shown when localStorage can't save the layout) */
+.storage-warning {
+    position: sticky;
+    top: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px;
+    background-color: #fff3cd;
+    color: #664d03;
+    border-bottom: 1px solid #ffe69c;
+    font-size: 14px;
+}
+
+.storage-warning-dismiss {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.storage-warning-dismiss:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .container {

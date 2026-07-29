@@ -34,17 +34,25 @@ export default class WallArtPlanner {
         // Initial marquee update will happen after frames are loaded/added and dispatch 'frameMove'
         // or explicitly if called by loadSavedState/addCollection.
 
-        window.addEventListener('storage', (event) => {
-            if (event.key === 'wallArtPlannerState') {
-                this.validateSavedState();
-            }
+        // Note: no 'storage' event listener. If two tabs are open, last writer wins;
+        // the previous cross-tab "validation" destroyed saved frames because frame ids
+        // were not serialized, and rewriting live DOM state from another tab is unsafe.
+    }
+
+    // Coalesce marquee updates so bursts of frameMove events cost one recompute per paint
+    scheduleMarqueeUpdate() {
+        if (!this.boundaryMarquee || this._marqueePending) return;
+        this._marqueePending = true;
+        requestAnimationFrame(() => {
+            this._marqueePending = false;
+            this.updateBoundaryMarquee();
         });
-        
-        if (typeof BoundaryTester === 'function') {
-            // this.boundaryTester = new BoundaryTester(this); // Commented out to hide the boundary testing panel
-        } else {
-            console.error('[WallArtPlanner] BoundaryTester class not found during initialization.');
-        }
+    }
+
+    // Debounced save for high-frequency callers (drags fire frameMove per pointer event)
+    saveStateDebounced(delay = 400) {
+        clearTimeout(this._saveTimer);
+        this._saveTimer = setTimeout(() => this.saveState(), delay);
     }
 
     initializeElements() {
@@ -143,10 +151,9 @@ export default class WallArtPlanner {
 
                 this.frameDetails.set(frameElement, { ...event.detail });
 
-                if (this.boundaryMarquee) {
-                    requestAnimationFrame(() => this.updateBoundaryMarquee());
-                }
-                this.saveState(); 
+                this.scheduleMarqueeUpdate();
+                // frameMove fires per pointer event during drags — debounce the save
+                this.saveStateDebounced();
             });
             
             this.wallCanvas.addEventListener('frameUpdate', (event) => { 
@@ -178,9 +185,7 @@ export default class WallArtPlanner {
                     });
                     
                     // Update UI and save state
-                    if (this.boundaryMarquee) {
-                        requestAnimationFrame(() => this.updateBoundaryMarquee());
-                    }
+                    this.scheduleMarqueeUpdate();
                     this.saveState();
                 }
             });
@@ -306,54 +311,6 @@ export default class WallArtPlanner {
         }
     }
 
-    validateSavedState() {
-        try {
-            const savedState = localStorage.getItem('wallArtPlannerState');
-            if (!savedState) return;
-            
-            const state = JSON.parse(savedState);
-            
-            // Check if localStorage has any frames that don't exist in DOM
-            if (state.collections) {
-                const domFrameIds = Array.from(document.querySelectorAll('.frame'))
-                    .map(el => el.dataset.id);
-                    
-                let needsResave = false;
-                
-                state.collections.forEach(collection => {
-                    if (collection.frames) {
-                        // Filter out frames that don't exist in DOM
-                        const originalLength = collection.frames.length;
-                        collection.frames = collection.frames.filter(frame => 
-                            domFrameIds.includes(String(frame.id))
-                        );
-                        
-                        if (collection.frames.length !== originalLength) {
-                            needsResave = true;
-                        }
-                    }
-                });
-                
-                // Remove empty collections
-                const originalCollectionsLength = state.collections.length;
-                state.collections = state.collections.filter(collection => 
-                    collection.frames && collection.frames.length > 0
-                );
-                
-                if (state.collections.length !== originalCollectionsLength) {
-                    needsResave = true;
-                }
-                
-                if (needsResave) {
-                    localStorage.setItem('wallArtPlannerState', JSON.stringify(state));
-                    console.log('Saved state validated and cleaned');
-                }
-            }
-        } catch (error) {
-            console.error('Error validating saved state:', error);
-        }
-    }
-
     loadSavedState() {
         const savedState = localStorage.getItem('wallArtPlannerState');
         if (!savedState) {
@@ -431,19 +388,31 @@ export default class WallArtPlanner {
                         const index = this.collections.indexOf(collection);
                         if (index > -1) {
                             this.collections.splice(index, 1);
-                            if (this.boundaryMarquee) requestAnimationFrame(() => this.updateBoundaryMarquee());
+                            this.scheduleMarqueeUpdate();
                             this.saveState();
                         }
                     });
                     this.collections.push(collection);
                 });
+
+                // Re-apply grid snapping and minimum spacing to restored frames
+                // (their drag managers start with defaults, not the saved settings)
+                const gridSize = this.gridSizeSelect ? Number(this.gridSizeSelect.value) : 0.5;
+                this.updateGridSize(gridSize);
+                this.updateFrameSpacing(this.frameSpacing);
             }
-            this.updateWallDisplay(); 
-            
+            this.updateWallDisplay();
+
         } catch (error) {
-            console.error('Error loading saved state:', error);
-            localStorage.removeItem('wallArtPlannerState');
-            this.updateWallDisplay(); 
+            // Never destroy the user's saved layout because restore failed —
+            // keep a backup so the data is recoverable, and start with a clean wall.
+            console.error('Error loading saved state (state preserved in wallArtPlannerState_backup):', error);
+            try {
+                localStorage.setItem('wallArtPlannerState_backup', savedState);
+            } catch (backupError) {
+                console.error('Could not back up saved state:', backupError);
+            }
+            this.updateWallDisplay();
         }
     }
 
@@ -523,10 +492,8 @@ export default class WallArtPlanner {
 
         this.wallWidthDisplay.textContent = formatMeasurement(this.wall.width);
         this.wallHeightDisplay.textContent = `Height: ${formatMeasurement(this.wall.height)}`;
-        
-        if (this.boundaryMarquee) {
-            requestAnimationFrame(() => this.updateBoundaryMarquee());
-        }
+
+        this.scheduleMarqueeUpdate();
     }
 
     createBoundaryMarquee() {
@@ -663,15 +630,13 @@ export default class WallArtPlanner {
             const index = this.collections.indexOf(collection);
             if (index > -1) {
                 this.collections.splice(index, 1);
-                if (this.boundaryMarquee) requestAnimationFrame(() => this.updateBoundaryMarquee());
+                this.scheduleMarqueeUpdate();
                 this.saveState();
             }
         });
-        
+
         this.collections.push(collection);
-        if (this.boundaryMarquee) {
-             requestAnimationFrame(() => this.updateBoundaryMarquee());
-        }
+        this.scheduleMarqueeUpdate();
     }
 
     saveState() {
@@ -703,12 +668,62 @@ export default class WallArtPlanner {
             };
             
             localStorage.setItem('wallArtPlannerState', JSON.stringify(state));
-            console.log('WallArtPlanner state saved:', state);
-            
+            this.hideStorageWarning();
+
             return true;
         } catch (error) {
+            // Most likely QuotaExceededError: images (background + frame photos) are large.
+            // Retry without image data so at least the layout survives, and tell the user.
             console.error('Error saving WallArtPlanner state:', error);
+            try {
+                const slimState = {
+                    wall: { ...this.wall },
+                    collections: this.collections
+                        .filter(c => c.frames && c.frames.length > 0)
+                        .map(c => {
+                            const data = c.serialize();
+                            data.frames = data.frames.map(f => ({ ...f, thumbnailImage: null }));
+                            return data;
+                        }),
+                    newCollection: { ...this.newCollection },
+                    gridSize: this.gridSizeSelect ? Number(this.gridSizeSelect.value) : 0.5,
+                    frameSpacing: this.frameSpacing,
+                    backgroundImageUrl: null
+                };
+                localStorage.setItem('wallArtPlannerState', JSON.stringify(slimState));
+                this.showStorageWarning('Your layout was saved, but the uploaded photos could not be — browser storage is full. They will not reappear after a reload.');
+            } catch (retryError) {
+                console.error('Retry save without images also failed:', retryError);
+                this.showStorageWarning('Your layout could not be saved — browser storage is full. Changes will be lost when you close this page.');
+            }
             return false;
         }
+    }
+
+    showStorageWarning(message) {
+        let warning = document.getElementById('storageWarning');
+        if (!warning) {
+            warning = document.createElement('div');
+            warning.id = 'storageWarning';
+            warning.className = 'storage-warning';
+            warning.setAttribute('role', 'alert');
+            const text = document.createElement('span');
+            text.className = 'storage-warning-text';
+            const dismiss = document.createElement('button');
+            dismiss.type = 'button';
+            dismiss.className = 'storage-warning-dismiss';
+            dismiss.setAttribute('aria-label', 'Dismiss warning');
+            dismiss.textContent = '×';
+            dismiss.addEventListener('click', () => warning.remove());
+            warning.appendChild(text);
+            warning.appendChild(dismiss);
+            document.body.prepend(warning);
+        }
+        warning.querySelector('.storage-warning-text').textContent = message;
+    }
+
+    hideStorageWarning() {
+        const warning = document.getElementById('storageWarning');
+        if (warning) warning.remove();
     }
 }

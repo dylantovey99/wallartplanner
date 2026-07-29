@@ -5,7 +5,9 @@ export default class Collection {
     static nextId = 1;
 
     constructor(data, wallDimensions, planner) { // Added planner argument
-        this.id = Collection.nextId++;
+        // Restore a persisted id when provided so saved state stays stable across reloads
+        this.id = data.id != null ? Number(data.id) : Collection.nextId++;
+        if (this.id >= Collection.nextId) Collection.nextId = this.id + 1;
         this.planner = planner; // Store planner instance
         console.log(`Collection constructor (ID: ${this.id}) called. Data.count: ${data.count}. Intended frame count for this collection: ${Math.max(1, Math.round(Number(data.count)))}`, JSON.parse(JSON.stringify(data)));
         
@@ -15,7 +17,10 @@ export default class Collection {
         // mattWidth from data is expected in CM, convert to inches for internal use
         this.mattWidth = cmToInches(Number(data.mattWidth)); 
         this.frameWidth = Number(data.frameWidth); // frameWidth is already in inches
-        this.count = Math.max(1, Math.round(Number(data.count)));
+        // Restored collections may not carry count; fall back to the number of saved frames
+        const parsedCount = Math.round(Number(data.count));
+        this.count = parsedCount >= 1 ? parsedCount
+            : (Array.isArray(data.frames) ? Math.max(1, data.frames.length) : 1);
         this.color = data.color || getRandomColor(); // For collection legend and print area
         this.frameMaterial = data.frameMaterial || 'black'; // For the frame itself
         this.wallDimensions = wallDimensions;
@@ -64,12 +69,9 @@ export default class Collection {
             frameData
         });
 
-        // Get the current frame spacing from the UI
-        const frameSpacingSelect = document.getElementById('frameSpacing');
-        const spacing = frameSpacingSelect ? Number(frameSpacingSelect.value) : 1;
-        
-        console.log(`Using frame spacing of ${spacing} inches for new collection`);
-        
+        // planner.frameSpacing is the source of truth (the UI select feeds it)
+        const spacing = this.planner ? Number(this.planner.frameSpacing) : 1;
+
         let lastX = spacing;
         let lastY = spacing;
 
@@ -83,8 +85,9 @@ export default class Collection {
         // Calculate grid cells for more organized placement
         const gridCellWidth = totalWidth + spacing;
         const gridCellHeight = totalHeight + spacing;
-        const maxCols = Math.floor((this.wallDimensions.width - spacing) / gridCellWidth);
-        
+        // A frame wider than the wall would make maxCols 0 and i % 0 produce NaN positions
+        const maxCols = Math.max(1, Math.floor((this.wallDimensions.width - spacing) / gridCellWidth));
+
         for (let i = 0; i < this.count; i++) {
             // Calculate grid-based position
             const col = i % maxCols;
@@ -130,27 +133,14 @@ export default class Collection {
             }
             
             const position = {
-                x: posX,
-                y: posY
+                x: Math.max(0, Math.min(posX, this.wallDimensions.width - totalWidth)),
+                y: Math.max(0, Math.min(posY, this.wallDimensions.height - totalHeight))
             };
 
             console.log(`Collection ${this.id} creating frame ${i + 1}/${this.count} at position:`, position);
             // Pass planner instance to Frame constructor
-            const frame = new Frame(frameData, position, this.color, this.wallDimensions, this.frameMaterial, this.planner); 
-            
-            frame.element.addEventListener('frameDelete', () => {
-                // Frame.remove() now dispatches 'frameDelete' which WallArtPlanner listens to.
-                // WallArtPlanner will then update its collections.
-                // This collection instance needs to know if it becomes empty.
-                console.log(`Collection ${this.id} received frameDelete event for frame ${frame.id}. Frame should have been removed by Frame.remove().`);
-                this.deleteFrame(frame);
-            });
-            
-            frame.element.addEventListener('frameMove', () => {
-                console.log(`Collection ${this.id} handling move for frame ${frame.id}`);
-                this.updateLegendCount();
-            });
-            
+            const frame = new Frame(frameData, position, this.color, this.wallDimensions, this.frameMaterial, this.planner);
+            frame.collection = this; // Back-reference so frameDelete events can carry the collection id
             this.frames.push(frame);
             
             // Add this frame to existing frames to avoid placing subsequent frames on top
@@ -169,10 +159,9 @@ export default class Collection {
     }
     
     checkPositionCollision(x, y, width, height, existingFrames) {
-        // Get the current frame spacing from the UI
-        const frameSpacingSelect = document.getElementById('frameSpacing');
-        const minDistance = frameSpacingSelect ? Number(frameSpacingSelect.value) : 1;
-        
+        // planner.frameSpacing is the source of truth (the UI select feeds it)
+        const minDistance = this.planner ? Number(this.planner.frameSpacing) : 1;
+
         for (const otherFrame of existingFrames) { // Changed loop variable name for clarity
             const horizontalOverlap = 
                 x < (otherFrame.x + otherFrame.width + minDistance) && 
@@ -240,6 +229,7 @@ export default class Collection {
             const mattWidthForFrameConstructor = parseFloat(this.mattWidth * 2.54); // Convert internal inches back to CM
 
             const frame = new Frame({
+                id: frameData.id, // Preserve the persisted frame id when present
                 printWidth: this.printWidth,
                 printHeight: this.printHeight,
                 mattWidth: mattWidthForFrameConstructor, // Pass CM value
@@ -248,20 +238,8 @@ export default class Collection {
                 x: Number(frameData.x),
                 y: Number(frameData.y)
             }, this.color, this.wallDimensions, this.frameMaterial, this.planner); // Pass planner
+            frame.collection = this; // Back-reference so frameDelete events can carry the collection id
 
-            frame.element.addEventListener('frameDelete', () => {
-                // Frame.remove() now dispatches 'frameDelete' which WallArtPlanner listens to.
-                // WallArtPlanner will then update its collections.
-                // This collection instance needs to know if it becomes empty.
-                console.log(`Collection ${this.id} received frameDelete event for frame ${frame.id} (restored). Frame should have been removed by Frame.remove().`);
-                this.deleteFrame(frame); // Still need to remove from this.frames and check if empty
-            });
-            
-            frame.element.addEventListener('frameMove', () => {
-                console.log(`Collection ${this.id} handling move for frame ${frame.id}`);
-                this.updateLegendCount();
-            });
-            
             // Restore thumbnail image if it exists
             if (frameData.thumbnailImage) {
                 frame.thumbnailImage = frameData.thumbnailImage;
@@ -280,13 +258,16 @@ export default class Collection {
         const mattWidthCm = parseFloat((this.mattWidth * 2.54).toFixed(2)); // Ensure it's a number with reasonable precision
         
         return {
+            id: this.id,
             printWidth: this.printWidth,
             printHeight: this.printHeight,
             mattWidth: mattWidthCm, // Store in CM
             frameWidth: this.frameWidth, // This is in inches
             color: this.color, // Print area/collection color
             frameMaterial: this.frameMaterial, // Frame's own material
+            count: this.frames.length,
             frames: this.frames.map(frame => ({
+                id: frame.id,
                 x: frame.x,
                 y: frame.y,
                 thumbnailImage: frame.thumbnailImage || null

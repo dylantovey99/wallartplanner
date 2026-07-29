@@ -5,7 +5,9 @@ export default class Frame {
     static nextId = 1;
 
     constructor(data, position, color, wallDimensions, frameMaterial = 'black', planner) { // Added planner argument
-        this.id = Frame.nextId++;
+        // Restore a persisted id when provided so saved state stays stable across reloads
+        this.id = data.id != null ? Number(data.id) : Frame.nextId++;
+        if (this.id >= Frame.nextId) Frame.nextId = this.id + 1;
         this.planner = planner; // Store planner instance
         console.log(`Creating frame ${this.id} with material ${frameMaterial}`, `Planner:`, planner);
 
@@ -198,8 +200,13 @@ export default class Frame {
         const deleteBtn = this.element.querySelector('.delete-btn');
         deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            console.log(`Deleting frame ${this.id}`);
-            this.element.dispatchEvent(new CustomEvent('frameDelete', { bubbles: true }));
+            this.element.dispatchEvent(new CustomEvent('frameDelete', {
+                bubbles: true,
+                detail: {
+                    frameId: this.id,
+                    collectionId: this.collection ? this.collection.id : undefined
+                }
+            }));
         });
 
         const infoBtn = this.element.querySelector('.frame-info-btn');
@@ -659,11 +666,8 @@ export default class Frame {
     }
     
     updateSpacingIndicator() {
-        // Get the current frame spacing from the UI
-        const frameSpacingSelect = document.getElementById('frameSpacing');
-        if (!frameSpacingSelect) return;
-        
-        const spacing = Number(frameSpacingSelect.value);
+        // planner.frameSpacing is the source of truth (the UI select feeds it)
+        const spacing = this.planner ? Number(this.planner.frameSpacing) : 1;
         const spacingIndicator = this.element.querySelector('.spacing-indicator');
         const spacingValue = this.element.querySelector('.spacing-value');
         

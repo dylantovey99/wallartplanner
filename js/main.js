@@ -103,28 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // PriceCalculator can be initialized regardless, as it doesn't depend on DOM at construction.
     const priceCalculator = new PriceCalculator();
 
-    // Add event listener for frame spacing changes - ONLY if planner is initialized AND element exists
-    const frameSpacingSelect = document.getElementById('frameSpacing');
-    if (frameSpacingSelect && window.planner) {
-        frameSpacingSelect.addEventListener('change', (e) => {
-            const newSpacing = Number(e.target.value);
-            // console.log(`Frame spacing changed to: ${newSpacing}`);
-            window.planner.updateFrameSpacing(newSpacing);
-            window.planner.saveState(); // Ensure state is saved after spacing change
-        });
-        // Initialize with current value from the planner's state if available
-        if (window.planner.frameSpacing !== undefined && String(window.planner.frameSpacing) !== frameSpacingSelect.value) {
-            // console.log(`main.js: Initializing frame spacing from planner state: ${window.planner.frameSpacing}`);
-            // frameSpacingSelect.value = String(window.planner.frameSpacing); // This is handled by WallArtPlanner's loadSavedState
-            window.planner.updateFrameSpacing(window.planner.frameSpacing); // Ensure frames get updated
-        } else if (window.planner.frameSpacing === undefined) {
-            // console.log(`main.js: Initializing frame spacing from select default: ${frameSpacingSelect.value}`);
-            window.planner.updateFrameSpacing(Number(frameSpacingSelect.value));
-        }
-    } else if (isPlannerContext && !frameSpacingSelect) { // Log if on planner page but element missing
-        console.warn('Frame spacing select element (#frameSpacing) not found on a planner context page. Spacing control disabled.');
-    }
-
+    // Frame spacing changes are handled by WallArtPlanner itself (single handler);
+    // it also applies the saved spacing to restored frames in loadSavedState.
 
     // Set up suggestion functionality - ONLY if suggestionEngine and planner are initialized
     const getSuggestionButton = document.getElementById('getSuggestion');
@@ -418,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Screenshot mode finished.');
             });
         });
-    } else if (isPlannerContext && (!screenshotButton || !wallCanvasElement)) {
+    } else if (isPlannerContext && (!screenshotButton || !wallCanvasForInit)) {
         console.warn('Screenshot button or wall canvas not found. Screenshot functionality disabled.');
     } else if (isPlannerContext && typeof html2canvas !== 'function') {
         console.warn('html2canvas library not loaded. Screenshot functionality disabled.');
